@@ -30,17 +30,17 @@
 The library is built around the powerful Yoneda Lemma, which states that every object in a category can be understood through its relationships with all other objects:
 
 ```mermaid
-graph TB
-    A[Object X] --> B[Functor Hom(-,X)]
-    B --> C[Natural Transformations]
-    C --> D[Pointwise Properties]
+flowchart TB
+    A["Object X"] --> B["Functor Hom(-, X)"]
+    B --> C["Natural Transformations"]
+    C --> D["Pointwise Properties"]
     
-    E[Complex Morphism Goal] --> F[yo Tactic]
-    F --> G[Pointwise Goal]
-    G --> H[Easier to Prove]
+    E["Complex Morphism Goal"] --> F["yo Tactic"]
+    F --> G["Pointwise Goal"]
+    G --> H["Easier to Prove"]
     
-    I[Naturality Square] --> J[naturality! Tactic]
-    J --> K[Automatic Solution]
+    I["Naturality Square"] --> J["naturality! Tactic"]
+    J --> K["Automatic Solution"]
     
     style A fill:#e1f5fe
     style E fill:#fff3e0
