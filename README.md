@@ -25,30 +25,6 @@
 - **Readable**: Provides clear explanations and debug information
 - **Configurable**: Flexible options for different use cases and performance requirements
 
-### Visual Concept
-
-The library is built around the powerful Yoneda Lemma, which states that every object in a category can be understood through its relationships with all other objects:
-
-```mermaid
-flowchart TB
-    A["Object X"] --> B["Functor Hom(-, X)"]
-    B --> C["Natural Transformations"]
-    C --> D["Pointwise Properties"]
-    
-    E["Complex Morphism Goal"] --> F["yo Tactic"]
-    F --> G["Pointwise Goal"]
-    G --> H["Easier to Prove"]
-    
-    I["Naturality Square"] --> J["naturality! Tactic"]
-    J --> K["Automatic Solution"]
-    
-    style A fill:#e1f5fe
-    style E fill:#fff3e0
-    style I fill:#f3e5f5
-    style H fill:#e8f5e8
-    style K fill:#e8f5e8
-```
-
 ### Library Architecture
 
 LeanYo is built with a modular architecture that separates concerns and provides clean interfaces:
