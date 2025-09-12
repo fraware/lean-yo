@@ -10,7 +10,7 @@
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/fraware/lean-yo)
 
 *Transform complex category theory proofs into elegant, readable solutions*
-
+ 
 </div>
 
 ## Overview
