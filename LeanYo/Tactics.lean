@@ -1,7 +1,7 @@
 import Lean
 import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Functor.Basic
-import Mathlib.CategoryTheory.NaturalTransformation
+import Mathlib.CategoryTheory.NatTrans
 import LeanYo.Options
 import LeanYo.RewriteKernel
 import LeanYo.Utils

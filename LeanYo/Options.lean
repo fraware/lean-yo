@@ -17,21 +17,20 @@ instance : ToString YoDirection where
 -- Options for the yo tactic
 structure YoOptions where
   direction : YoDirection := YoDirection.auto
-  deriving Inhabited
 
 -- Options for the naturality! tactic
 structure NaturalityOptions where
   maxSteps : Nat := 64
   timeout : Nat := 1500 -- milliseconds
-  deriving Inhabited
 
 -- Global options state
 structure Options where
   yo : YoOptions := {}
   naturality : NaturalityOptions := {}
-  deriving Inhabited
 
--- Default options instance
+-- Default options instances
+instance : Inhabited YoOptions := ⟨{}⟩
+instance : Inhabited NaturalityOptions := ⟨{}⟩
 instance : Inhabited Options := ⟨{}⟩
 
 -- Option accessors

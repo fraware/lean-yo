@@ -1,7 +1,7 @@
 import LeanYo
 import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Functor.Basic
-import Mathlib.CategoryTheory.NaturalTransformation
+import Mathlib.CategoryTheory.NatTrans
 import Mathlib.CategoryTheory.Functor.Category
 
 -- P1 Test Suite: whiskering, horizontal/vertical composition of NTs, bifunctors

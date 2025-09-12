@@ -4,10 +4,10 @@ import LeanYo.Options
 namespace LeanYo
 
 -- Attribute for registering natural transformation naturality lemmas
-register_attribute naturality : Attribute where
+initialize naturalityAttr : AttributeImpl where
   name := `naturality
   descr := "Register natural transformation naturality lemmas for use by naturality! tactic"
-  afterSet := fun decl => do
+  add decl := do
     -- Validation: check that the lemma is about naturality
     let env ← getEnv
     let declInfo := env.getDecl decl
@@ -20,10 +20,10 @@ register_attribute naturality : Attribute where
     | _ => throwError "naturality attribute can only be applied to theorems"
 
 -- Attribute for registering lemmas that fuse map_comp, whisker laws, functoriality
-register_attribute yo.fuse : Attribute where
+initialize yoFuseAttr : AttributeImpl where
   name := `yo.fuse
   descr := "Register lemmas that fuse map_comp, whisker laws, and functoriality for use by yo tactic"
-  afterSet := fun decl => do
+  add decl := do
     -- Validation: check that the lemma is about functoriality/whiskering
     let env ← getEnv
     let declInfo := env.getDecl decl

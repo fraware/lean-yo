@@ -1,7 +1,7 @@
 import Lean
 import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Functor.Basic
-import Mathlib.CategoryTheory.NaturalTransformation
+import Mathlib.CategoryTheory.NatTrans
 import Mathlib.CategoryTheory.Yoneda
 import Mathlib.CategoryTheory.Functor.Category
 import LeanYo.Options
@@ -107,15 +107,15 @@ def isNaturalitySquarePattern (expr : Expr) : Bool :=
 where
   isNaturalityComposition (expr : Expr) : Bool :=
     match expr with
-    | .app (.app (.const `Category.comp _) (.app (.const `NaturalTransformation.app _) _) _) => true
-    | .app (.app (.const `Category.comp _) _ (.app (.const `NaturalTransformation.app _) _)) => true
+    | .app (.app (.const `Category.comp _) (.app (.const `NatTrans.app _) _) _) => true
+    | .app (.app (.const `Category.comp _) _ (.app (.const `NatTrans.app _) _)) => true
     | _ => false
 
 -- Extract natural transformation from a naturality square
 def extractNaturalTransformation (expr : Expr) : Option Expr :=
   match expr with
-  | .app (.app (.const `Category.comp _) (.app (.const `NaturalTransformation.app _) η) _) => some η
-  | .app (.app (.const `Category.comp _) _ (.app (.const `NaturalTransformation.app _) η)) => some η
+  | .app (.app (.const `Category.comp _) (.app (.const `NatTrans.app _) η) _) => some η
+  | .app (.app (.const `Category.comp _) _ (.app (.const `NatTrans.app _) η)) => some η
   | _ => none
 
 -- Apply naturality square rewriting using registered lemmas

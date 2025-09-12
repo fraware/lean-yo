@@ -1,7 +1,7 @@
 import Lean
 import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Functor.Basic
-import Mathlib.CategoryTheory.NaturalTransformation
+import Mathlib.CategoryTheory.NatTrans
 import Mathlib.CategoryTheory.Functor.Category
 
 namespace LeanYo
@@ -18,20 +18,18 @@ def functorialitySimpSet : List Name := [
 
 -- Simp set for natural transformation naturality
 def naturalitySimpSet : List Name := [
-  `CategoryTheory.NaturalTransformation.naturality,
-  `CategoryTheory.NaturalTransformation.naturality_assoc,
-  `CategoryTheory.NaturalTransformation.naturality_id,
-  `CategoryTheory.NaturalTransformation.naturality_comp
+  `CategoryTheory.NatTrans.naturality,
+  `CategoryTheory.NatTrans.naturality_assoc
 ]
 
 -- Simp set for whiskering laws
 def whiskeringSimpSet : List Name := [
-  `CategoryTheory.NaturalTransformation.whiskerLeft_app,
-  `CategoryTheory.NaturalTransformation.whiskerRight_app,
-  `CategoryTheory.NaturalTransformation.whiskerLeft_comp,
-  `CategoryTheory.NaturalTransformation.whiskerRight_comp,
-  `CategoryTheory.NaturalTransformation.whiskerLeft_id,
-  `CategoryTheory.NaturalTransformation.whiskerRight_id
+  `CategoryTheory.NatTrans.whiskerLeft_app,
+  `CategoryTheory.NatTrans.whiskerRight_app,
+  `CategoryTheory.NatTrans.whiskerLeft_comp,
+  `CategoryTheory.NatTrans.whiskerRight_comp,
+  `CategoryTheory.NatTrans.whiskerLeft_id,
+  `CategoryTheory.NatTrans.whiskerRight_id
 ]
 
 -- Simp set for Yoneda isomorphisms
@@ -94,7 +92,7 @@ def isFunctorialityGoal (goal : Expr) : Bool :=
 -- Check if a goal is a naturality goal
 def isNaturalityGoal (goal : Expr) : Bool :=
   let goalStr := toString goal
-  goalStr.contains "NaturalTransformation.app" &&
+  goalStr.contains "NatTrans.app" &&
   goalStr.contains "Category.comp"
 
 -- Check if a goal is a whiskering goal

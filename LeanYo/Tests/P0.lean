@@ -1,7 +1,7 @@
 import LeanYo
 import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Functor.Basic
-import Mathlib.CategoryTheory.NaturalTransformation
+import Mathlib.CategoryTheory.NatTrans
 
 -- P0 Test Suite: functoriality (map_id, map_comp) + simple NT squares
 

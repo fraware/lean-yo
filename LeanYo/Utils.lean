@@ -1,7 +1,7 @@
 import Lean
 import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Functor.Basic
-import Mathlib.CategoryTheory.NaturalTransformation
+import Mathlib.CategoryTheory.NatTrans
 
 namespace LeanYo
 
@@ -16,7 +16,7 @@ def isCandidateGoal (goal : Expr) : MetaM Bool := do
   let goalStr := toString goal
   return goalStr.contains "Category.comp" ||
          goalStr.contains "Functor.map" ||
-         goalStr.contains "NaturalTransformation.app"
+         goalStr.contains "NatTrans.app"
 
 -- Extract functor from a functor map expression
 def extractFunctor (expr : Expr) : Option Expr :=
@@ -27,7 +27,7 @@ def extractFunctor (expr : Expr) : Option Expr :=
 -- Extract natural transformation from an app expression
 def extractNaturalTransformation (expr : Expr) : Option Expr :=
   match expr with
-  | .app (.const `NaturalTransformation.app _) η => some η
+  | .app (.const `NatTrans.app _) η => some η
   | _ => none
 
 -- Check if an expression is a composition chain
@@ -120,7 +120,7 @@ structure TelemetryData where
   failureCount : Nat := 0
   failureReasons : List String := []
 
--- Global telemetry state (in practice, this would be more sophisticated)
+-- Global telemetry state (simplified for now)
 def telemetryData : IO.Ref TelemetryData := unsafePerformIO (IO.mkRef {})
 
 -- Record telemetry data
