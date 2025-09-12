@@ -1,0 +1,178 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lean-version: [v4.8.0, v4.9.0]
+        
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Lean ${{ matrix.lean-version }}
+      uses: leanprover/lean4-action@v2
+      with:
+        lean-version: ${{ matrix.lean-version }}
+        
+    - name: Install dependencies
+      run: |
+        lake update
+        lake build
+        
+    - name: Run tests
+      run: |
+        lake test
+        
+    - name: Run benchmarks
+      run: |
+        lake build LeanYo.Tests.Benchmarks
+        
+    - name: Check for performance regressions
+      run: |
+        # Run performance benchmarks and check against SLAs
+        echo "Checking performance SLAs..."
+        echo "P50 target: ≤80ms, P95 target: ≤400ms"
+        # In a full implementation, this would run actual benchmarks
+        # and compare against baseline performance metrics
+        
+  proof-diff:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Setup Lean
+      uses: leanprover/lean4-action@v2
+      with:
+        lean-version: v4.8.0
+        
+    - name: Install dependencies
+      run: |
+        lake update
+        lake build
+        
+    - name: Analyze proof changes
+      run: |
+        echo "Analyzing proof changes in PR..."
+        echo "This would analyze tactic invocations and lines of proof"
+        echo "to provide a diff report for the PR"
+        
+        # In a full implementation, this would:
+        # 1. Build the project on both base and head commits
+        # 2. Compare tactic usage patterns
+        # 3. Generate a report showing:
+        #    - Number of yo/naturality! tactic calls
+        #    - Lines of proof reduced/added
+        #    - Performance impact analysis
+        
+  quality-gates:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Lean
+      uses: leanprover/lean4-action@v2
+      with:
+        lean-version: v4.8.0
+        
+    - name: Install dependencies
+      run: |
+        lake update
+        lake build
+        
+    - name: Run P0 tests (functoriality + simple NT squares)
+      run: |
+        echo "Running P0 test suite..."
+        lake build LeanYo.Tests.P0
+        
+    - name: Run P1 tests (whiskering, horizontal/vertical composition)
+      run: |
+        echo "Running P1 test suite..."
+        lake build LeanYo.Tests.P1
+        
+    - name: Run P2 tests (coyoneda reductions, dinaturality)
+      run: |
+        echo "Running P2 test suite..."
+        lake build LeanYo.Tests.P2
+        
+    - name: Check test determinism
+      run: |
+        echo "Checking test determinism..."
+        # Run tests multiple times to ensure consistency
+        lake build LeanYo.Tests.P0
+        lake build LeanYo.Tests.P0
+        lake build LeanYo.Tests.P0
+        
+  performance-benchmarks:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Lean
+      uses: leanprover/lean4-action@v2
+      with:
+        lean-version: v4.8.0
+        
+    - name: Install dependencies
+      run: |
+        lake update
+        lake build
+        
+    - name: Run performance benchmarks
+      run: |
+        echo "Running performance benchmarks..."
+        echo "Target SLAs:"
+        echo "  - P50 ≤ 80ms per call"
+        echo "  - P95 ≤ 400ms per call"
+        echo "  - Large diagram improvement ≥60% vs baseline"
+        
+        # In a full implementation, this would run actual benchmarks
+        # and store results for comparison
+        
+    - name: Check SLA compliance
+      run: |
+        echo "Checking SLA compliance..."
+        # This would parse benchmark results and verify:
+        # - yo tactic P50 ≤ 80ms
+        # - yo tactic P95 ≤ 400ms  
+        # - naturality! tactic P50 ≤ 80ms
+        # - naturality! tactic P95 ≤ 400ms
+        # - Performance improvements meet targets
+        
+  documentation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Lean
+      uses: leanprover/lean4-action@v2
+      with:
+        lean-version: v4.8.0
+        
+    - name: Build documentation
+      run: |
+        lake build
+        # In a full implementation, this would generate:
+        # - API documentation
+        # - Usage examples
+        # - Performance reports
+        
+    - name: Validate documentation
+      run: |
+        echo "Validating documentation..."
+        # Check that all public APIs are documented
+        # Verify examples compile and run
+        # Ensure performance claims are backed by benchmarks

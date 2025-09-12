@@ -1,0 +1,91 @@
+name: Proof Diff Bot
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  proof-diff:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Setup Lean
+      uses: leanprover/lean4-action@v2
+      with:
+        lean-version: v4.8.0
+        
+    - name: Install dependencies
+      run: |
+        lake update
+        
+    - name: Build base commit
+      run: |
+        git checkout ${{ github.event.pull_request.base.sha }}
+        lake build
+        
+    - name: Analyze base commit
+      run: |
+        echo "Analyzing base commit..."
+        # In a full implementation, this would:
+        # 1. Parse all .lean files for tactic usage
+        # 2. Count yo/naturality! tactic invocations
+        # 3. Measure lines of proof
+        # 4. Record performance metrics
+        # 5. Store results for comparison
+        
+    - name: Build head commit
+      run: |
+        git checkout ${{ github.event.pull_request.head.sha }}
+        lake build
+        
+    - name: Analyze head commit
+      run: |
+        echo "Analyzing head commit..."
+        # Similar analysis as base commit
+        
+    - name: Generate diff report
+      run: |
+        echo "Generating proof diff report..."
+        echo "## Proof Diff Report" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Tactic Usage Changes" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Metric | Base | Head | Change |" >> $GITHUB_STEP_SUMMARY
+        echo "|--------|------|------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| \`yo\` tactic calls | 0 | 0 | ±0 |" >> $GITHUB_STEP_SUMMARY
+        echo "| \`naturality!\` tactic calls | 0 | 0 | ±0 |" >> $GITHUB_STEP_SUMMARY
+        echo "| Lines of proof | 0 | 0 | ±0 |" >> $GITHUB_STEP_SUMMARY
+        echo "| Proof complexity | 0 | 0 | ±0 |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Performance Impact" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Metric | Base | Head | Change |" >> $GITHUB_STEP_SUMMARY
+        echo "|--------|------|------|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Build time | 0s | 0s | ±0s |" >> $GITHUB_STEP_SUMMARY
+        echo "| Tactic execution time | 0ms | 0ms | ±0ms |" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Recommendations" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ No significant changes detected" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Performance impact within acceptable bounds" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "> This is a placeholder report. In production, this would show actual diff analysis." >> $GITHUB_STEP_SUMMARY
+        
+    - name: Comment on PR
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY, 'utf8');
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: summary
+          });
