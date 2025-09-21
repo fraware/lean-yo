@@ -101,7 +101,69 @@ graph TB
     style J fill:#3f51b5
 ```
 
-## Installation
+## 🚀 Quickstart
+
+### One-Command Install & Run
+
+**Option 1: Docker (Recommended)**
+```bash
+# Run LeanYo instantly with Docker
+docker run --rm ghcr.io/fraware/lean-yo:latest --help
+```
+
+**Option 2: Add to Your Lean Project**
+```bash
+# Add this line to your lakefile.lean
+require lean-yo from git "https://github.com/fraware/lean-yo.git"
+
+# Then update and build
+lake update
+lake build
+```
+
+### Quick Test Drive
+
+Try LeanYo immediately with these copy-paste commands:
+
+```bash
+# Test the Docker image
+docker run --rm ghcr.io/fraware/lean-yo:latest --examples
+
+# Or run interactively
+docker run -it --rm ghcr.io/fraware/lean-yo:latest bash
+```
+
+### Development Setup
+
+```bash
+# Clone and set up development environment
+git clone https://github.com/fraware/lean-yo.git
+cd lean-yo
+make dev    # Sets up everything you need
+make run    # Test the library
+```
+
+## Installation Options
+
+### 🐳 Docker (Zero Setup)
+
+**Run Examples:**
+```bash
+docker run --rm ghcr.io/fraware/lean-yo:latest --examples
+```
+
+**Process Your Own Files:**
+```bash
+# Mount your current directory and process a file
+docker run --rm -v $(pwd):/workspace ghcr.io/fraware/lean-yo:latest /workspace/my_proof.lean
+```
+
+**Interactive Development:**
+```bash
+docker run -it --rm -v $(pwd):/workspace ghcr.io/fraware/lean-yo:latest bash
+```
+
+### 📦 Lean Package
 
 Add LeanYo to your project by including it in your `lakefile.lean`:
 
@@ -113,6 +175,32 @@ Then import the library in your Lean files:
 
 ```lean
 import LeanYo
+```
+
+### 🛠️ Local Development
+
+```bash
+# Clone the repository
+git clone https://github.com/fraware/lean-yo.git
+cd lean-yo
+
+# Quick setup with Make
+make dev        # Set up development environment  
+make run        # Run and test the library
+make test       # Run comprehensive tests
+make release    # Build release artifacts
+```
+
+**Manual Setup:**
+```bash
+# Install dependencies
+lake update
+
+# Build the library
+lake build
+
+# Run tests (if available)
+lake test
 ```
 
 ## Usage
@@ -246,6 +334,55 @@ LeanYo is designed for high performance with the following guarantees:
 - Increase `naturality.timeout` only when necessary
 - Register custom lemmas with `@[naturality]` and `@[yo.fuse]` attributes
 
+## 🧪 Testing & Validation
+
+LeanYo includes comprehensive testing and validation tools:
+
+```bash
+# Run all tests
+make test
+
+# Quick build check
+make quick-test
+
+# Run production test suite
+python3 scripts/production_test.py
+
+# Validate lemma database
+python3 scripts/validate_lemmas.py
+
+# Check dependencies
+make check-deps
+```
+
+### Available Make Targets
+
+| Command | Description |
+|---------|-------------|
+| `make dev` | Set up local development environment |
+| `make run` | Run and test the library locally |
+| `make test` | Run comprehensive test suite |
+| `make build` | Build the library |
+| `make clean` | Clean build artifacts |
+| `make release` | Build and publish release (supports `DRY_RUN=1`) |
+| `make docker-build` | Build Docker image |
+| `make docker-push` | Push Docker image to registry |
+| `make ci` | Run complete CI pipeline locally |
+| `make help` | Show all available commands |
+
+### Docker Commands
+
+```bash
+# Build Docker image locally
+make docker-build
+
+# Run Docker container
+make docker-run
+
+# Push to registry (requires authentication)
+make docker-push
+```
+
 ## Contributing
 
 We welcome contributions to LeanYo! Here's how you can help:
@@ -263,11 +400,27 @@ We welcome contributions to LeanYo! Here's how you can help:
 git clone https://github.com/yourusername/lean-yo.git
 cd lean-yo
 
-# Install dependencies
-lake update
+# Set up development environment
+make dev
 
-# Run tests
-lake build
+# Run tests to ensure everything works
+make test
+```
+
+### Testing Your Changes
+
+```bash
+# Quick validation
+make quick-test
+
+# Full test suite
+make test
+
+# Run CI pipeline locally
+make ci
+
+# Test Docker build
+make docker-build
 ```
 
 ## License
