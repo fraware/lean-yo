@@ -10,7 +10,7 @@
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/fraware/lean-yo)
 
 *Transform complex category theory proofs into elegant, readable solutions*
-
+ 
 </div>
 
 ## Overview
@@ -24,30 +24,6 @@
 - **Safe & Robust**: Minimal configuration with safe defaults and robust performance on large diagrams
 - **Readable**: Provides clear explanations and debug information
 - **Configurable**: Flexible options for different use cases and performance requirements
-
-### Visual Concept
-
-The library is built around the powerful Yoneda Lemma, which states that every object in a category can be understood through its relationships with all other objects:
-
-```mermaid
-graph TB
-    A[Object X] --> B[Functor Hom(-,X)]
-    B --> C[Natural Transformations]
-    C --> D[Pointwise Properties]
-    
-    E[Complex Morphism Goal] --> F[yo Tactic]
-    F --> G[Pointwise Goal]
-    G --> H[Easier to Prove]
-    
-    I[Naturality Square] --> J[naturality! Tactic]
-    J --> K[Automatic Solution]
-    
-    style A fill:#e1f5fe
-    style E fill:#fff3e0
-    style I fill:#f3e5f5
-    style H fill:#e8f5e8
-    style K fill:#e8f5e8
-```
 
 ### Library Architecture
 
