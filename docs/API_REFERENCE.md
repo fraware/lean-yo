@@ -1,4 +1,6 @@
-# Lean-Yo API Reference
+# LeanYo API reference
+
+Hand-maintained overview of public tactics, attributes, and helpers. For narrative usage, see [Usage guide](USAGE_GUIDE.md). For building and Mathlib pins, see [Developer guide](DEVELOPER_GUIDE.md) and [Contributing](../CONTRIBUTING.md).
 
 ## Tactics
 
@@ -268,11 +270,11 @@ let env ← getEnv
 let fuseLemmas := getYoFuseLemmas env
 ```
 
-## Performance Measurement
+## Performance measurement
 
 ### `measurePerformance`
 
-**Purpose**: Measure the performance of a tactic execution.
+**Purpose**: Measure wall-clock time and simple counters around a monadic action (for local profiling).
 
 **Signature**: `measurePerformance [Monad m] [MonadLiftT IO m] (tacticName : String) (action : m α) : m (α × PerformanceMetrics)`
 
@@ -293,13 +295,18 @@ let (result, metrics) ← measurePerformance "yo" do
 IO.println s!"yo tactic took {metrics.endTime - metrics.startTime}ms"
 ```
 
-## Error Handling
+## Error handling
 
-All tactics include comprehensive error handling:
+Typical failure modes:
 
-- **Timeout errors**: When tactics exceed their timeout limits
-- **Step limit errors**: When tactics exceed their maximum step count
-- **Pattern matching errors**: When goals don't match expected patterns
-- **Validation errors**: When attributes are applied to invalid declarations
+- **Timeouts** when `naturality.timeout` is exceeded
+- **Step limits** when `naturality.maxSteps` is exceeded
+- **Pattern mismatches** when the goal is not in a shape the tactic handles
+- **Attribute validation** when `@[naturality]` / `@[yo.fuse]` are applied to unsuitable declarations
 
-Error messages are designed to be informative and help users understand what went wrong and how to fix it.
+Use `yo?` and `naturality?` for more visibility into rewrite steps.
+
+## Toolchain and generated docs
+
+- **Lean / Mathlib**: Versions are fixed in [`lean-toolchain`](../lean-toolchain), [`lakefile.lean`](../lakefile.lean), and [`lake-manifest.json`](../lake-manifest.json). See [Developer guide](DEVELOPER_GUIDE.md) for how to build and test locally.
+- **Optional HTML API docs**: [doc-gen4](https://github.com/leanprover/doc-gen4) can be added as a separate Lake target; this markdown file stays the default reference so the main library build stays small.

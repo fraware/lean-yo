@@ -68,7 +68,6 @@ class LemmaValidator:
     def _should_skip_file(self, file_path: Path) -> bool:
         """Check if file should be skipped during lemma discovery."""
         skip_patterns = [
-            "lake-packages",
             ".lake",
             "build",
             "Tests/",  # Skip test files

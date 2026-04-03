@@ -1,10 +1,10 @@
-# Developer Guide
+# Developer guide
 
-This document provides comprehensive guidance for developers working on the lean-yo library.
+Guidance for working on **LeanYo**. For using the tactics, see [Usage guide](USAGE_GUIDE.md). For syntax and helpers, see [API reference](API_REFERENCE.md). For pull requests and dependency bumps, see [Contributing](../CONTRIBUTING.md).
 
-## Architecture Overview
+## Architecture overview
 
-The `lean-yo` library is built around a modular architecture with the following key components:
+The library is organized as follows:
 
 ### Core Modules
 
@@ -20,7 +20,7 @@ The `lean-yo` library is built around a modular architecture with the following 
 - **`LeanYo.Tests.P0`**: Basic functoriality and simple naturality tests
 - **`LeanYo.Tests.P1`**: Whiskering, composition, and bifunctor tests  
 - **`LeanYo.Tests.P2`**: Yoneda/Coyoneda and advanced category theory tests
-- **`LeanYo.Tests.Benchmarks`**: Performance benchmarking and SLA validation
+- **`LeanYo.Tests.Benchmarks`**: Quick timing checks (not a full tactic performance suite)
 - **`LeanYo.Examples`**: Working examples demonstrating tactic usage
 
 ### Rewrite Kernel
@@ -65,31 +65,41 @@ The library automatically detects candidates for rewriting by looking for:
 - **P1**: Whiskering, composition of natural transformations, bifunctors
 - **P2**: Coyoneda reductions, dinaturality on ends/coends
 
-### Running Tests
+### Running tests
+
+From the repository root:
 
 ```bash
-# Run all tests
-lake test
+make test
+```
 
-# Run specific test suite
+That updates dependencies, builds the library, examples, and test modules (`P0` through `P2`, benchmarks), and runs the project checks.
+
+To build individual test modules after `lake update`:
+
+```bash
 lake build LeanYo.Tests.P0
 lake build LeanYo.Tests.P1
 lake build LeanYo.Tests.P2
+lake build LeanYo.Tests.Benchmarks
 ```
 
 ### Adding Tests
 
 1. Add test cases to the appropriate test suite
 2. Ensure tests are deterministic and fast
-3. Add performance benchmarks for new features
+3. If you add heavy automation, document expected cost and timeouts in the test module
+
+## Toolchain and Mathlib policy
+
+- **Versions**: `lean-toolchain` and the Mathlib revision in `lakefile.lean` / `lake-manifest.json` define what the project builds against.
+- **Bumping**: Run `lake update`, then `make test`, fix any breakage, and commit the updated manifest (and `lean-toolchain` if needed).
 
 ## Performance Considerations
 
-### Performance SLAs
+### Expectations
 
-- P50 ≤ 80ms per call on P0/P1 suites
-- P95 ≤ 400ms per call on P0/P1 suites
-- ≥60% reduction in manual steps on large diagrams
+- Use `naturality.maxSteps`, `naturality.timeout`, and local profiling when tuning heavy proofs.
 
 ### Optimization Guidelines
 
@@ -205,8 +215,8 @@ lake build
    ```
 
 2. **Make your changes** following the coding standards:
-   - Use state-of-the-art software engineering practices
-   - Triple-check all code
+   - Keep changes clear and well tested
+   - Review your changes carefully
    - Follow Lean 4 naming conventions
    - Add comprehensive documentation
 
@@ -215,17 +225,12 @@ lake build
    - Include both positive and negative test cases
    - Ensure tests are deterministic and non-flaky
 
-4. **Run the test suite**:
+4. **Run the full test suite**:
    ```bash
-   lake test
+   make test
    ```
 
-5. **Run performance benchmarks**:
-   ```bash
-   lake run LeanYo.Tests.Benchmarks.runComprehensiveBenchmarks
-   ```
-
-6. **Check for linting errors**:
+5. **Check for build warnings**:
    ```bash
    lake build --warn
    ```
@@ -243,10 +248,10 @@ lake build
    - Make requested changes
    - Update tests if needed
 
-3. **Ensure CI passes**:
+3. **Ensure automated checks pass**:
    - All tests must pass
-   - Performance SLAs must be met
-   - No linting errors
+   - Call out performance impact when tactics or defaults change
+   - No unexpected build warnings
 
 ## Code Standards
 
@@ -302,12 +307,12 @@ lake build
 2. **Implement changes**: Follow coding standards and architecture guidelines
 3. **Add tests**: Include comprehensive tests for all new functionality
 4. **Update documentation**: Update relevant documentation
-5. **Run CI**: Ensure all CI checks pass
+5. **Run checks**: Ensure `make test` and other project checks pass locally
 6. **Submit PR**: Create a pull request with clear description
 
 ### Review Process
 
-1. **Automated checks**: CI runs tests, benchmarks, and linting
+1. **Automated checks**: builds, tests, and helper scripts run on each pull request
 2. **Code review**: At least one maintainer reviews the code
 3. **Performance review**: Performance impact is assessed
 4. **Documentation review**: Documentation is reviewed for clarity
@@ -373,6 +378,10 @@ lake build
 - [Lean 4 VS Code Extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4)
 - [Lake Package Manager](https://github.com/leanprover/lake)
 - [Mathlib4 Tools](https://github.com/leanprover-community/mathlib4)
+
+### Optional: HTML API docs (doc-gen4)
+
+The default build stays lean: hand-written [API_REFERENCE.md](API_REFERENCE.md) plus docstrings in code. To publish Mathlib-style HTML, add [doc-gen4](https://github.com/leanprover/doc-gen4) pinned to a revision compatible with your `mathlib` and Lean version, then add a separate Lake target or workflow so doc generation does not slow routine `lake build`.
 
 ### Community
 

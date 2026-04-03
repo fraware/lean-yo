@@ -1,0 +1,57 @@
+name: Lake update (PR)
+
+# Opens a PR when `lake update` changes the manifest (or fails if the project no longer builds).
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read Lean version
+        id: lean
+        run: echo "version=$(cut -d: -f2 lean-toolchain)" >> "$GITHUB_OUTPUT"
+
+      - uses: leanprover/lean4-action@v2
+        with:
+          lean-version: ${{ steps.lean.outputs.version }}
+
+      - name: lake update
+        run: lake update
+
+      - name: Build and test (same as CI)
+        run: |
+          bash scripts/ci_build.sh
+          lake exe leanyo-benchmarks
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Python validation scripts
+        run: |
+          python3 scripts/production_test.py
+          python3 scripts/validate_lemmas.py
+
+      - name: Open pull request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore: lake update"
+          branch: chore/automated-lake-update
+          delete-branch: true
+          title: "chore: automated lake update"
+          body: |
+            Automated `lake update` (scheduled or manual).
+
+            Before merging:
+            - Confirm `lean-toolchain` matches the Mathlib revision you intend to support.
+            - Run `make test` locally if automated checks fail.
+            - Update the README compatibility table if the supported Lean version changed.

@@ -12,7 +12,8 @@ require mathlib from git
 
 @[default_target]
 lean_lib «LeanYo» where
-  -- Add library configuration options here
   globs := #[.submodules `LeanYo]
 
--- Test targets removed - using library tests instead
+/-- Optional: `lake exe leanyo-benchmarks` runs IO smoke timing (see module docstring). -/
+lean_exe «leanyo-benchmarks» where
+  root := `LeanYo.Tests.Benchmarks

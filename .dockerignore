@@ -8,10 +8,6 @@
 dist/
 *.tar.gz
 
-# Documentation (will be copied separately)
-README.md
-docs/
-
 # CI/CD
 .github/
 

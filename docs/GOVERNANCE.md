@@ -1,10 +1,10 @@
-# Lean-Yo Governance
+# LeanYo governance
 
-## Lemma Database Management
+## Lemma database management
 
-### Ownership and Responsibility
+### Ownership and responsibility
 
-The lean-yo lemma database is managed through a structured governance process to ensure quality, prevent bloat, and maintain performance.
+User-registered lemmas (`@[naturality]`, `@[yo.fuse]`) and the built-in rewrite sets should stay **sound**, **scoped**, and **easy to review**. This document describes how the project thinks about quality; it is not a literal description of every automated check (see **Automated checks** below).
 
 ### Core Principles
 
@@ -25,14 +25,14 @@ Before adding a new lemma to the database:
 3. **Include Example**: Provide a minimal reproducible example
 4. **Performance Analysis**: Analyze potential performance impact
 
-### 2. Review Phase
+### 2. Review phase
 
 The review process includes:
 
-1. **Technical Review**: Code review by maintainers
-2. **Loop Check**: Automated loop-detection validation
-3. **Performance Test**: Benchmarking against current performance
-4. **Community Input**: Feedback from the community
+1. **Technical review**: Maintainer / reviewer reads the lemma and its use cases
+2. **Regression tests**: Add or extend `example` proofs in `LeanYo.Tests.P0` / `P1` / `P2` when behavior changes
+3. **Script checks**: the test pipeline runs `scripts/validate_lemmas.py` and `scripts/production_test.py` (heuristic checks, not a proof of termination for every rewrite path)
+4. **Community input**: Discussion on the PR or in GitHub Discussions / Zulip as appropriate
 
 ### 3. Implementation Phase
 
@@ -43,45 +43,36 @@ After approval:
 3. **Documentation**: Update documentation
 4. **Monitoring**: Monitor performance impact
 
-## Loop Prevention
+## Loop prevention
 
-### Automatic Loop Detection
+### Automatic checks (today)
 
-All lemmas must pass automated loop detection:
+Automated builds on each change compile the library and tests, run a quick timing check, and run the Python helper scripts in `scripts/`. Nothing here proves “no infinite rewrite chains” for every possible user lemma.
 
-```lean
--- Example loop detection for naturality lemmas
-def checkNaturalityLoop (lemma : Name) : MetaM Bool := do
-  -- Implementation would check for:
-  -- 1. Self-referential patterns
-  -- 2. Circular dependencies
-  -- 3. Infinite rewrite sequences
-  -- 4. Performance regressions
-  return false  -- Placeholder
-```
+### Design goal (review)
 
-### Manual Review Checklist
+Reviewers should still watch for lemmas that could cause **rewrite loops** or **explosive simp search** in interaction with `naturality!` / `yo`.
+
+### Manual review checklist
 
 Before approving any lemma:
 
 - [ ] Does the lemma have a clear, single purpose?
 - [ ] Is the lemma necessary (not redundant with existing lemmas)?
-- [ ] Does the lemma include a minimal reproducible example?
-- [ ] Has the lemma passed automated loop detection?
-- [ ] Does the lemma improve or maintain performance?
-- [ ] Is the lemma properly documented?
-- [ ] Has the lemma been tested in realistic scenarios?
+- [ ] Does the PR include a minimal `example` (or test-module proof) that exercises it?
+- [ ] Could this lemma interact badly with existing simp / rewrite sets (loops, blow-ups)?
+- [ ] Is the lemma documented (docstring or linked usage guide section)?
+- [ ] Have the automated checks on the pull request passed?
 
-## Quality Gates
+## Quality gates
 
-### Performance Thresholds
+### Performance (review guidelines)
 
-New lemmas must not exceed these thresholds:
+These are **guidelines for human review**, not automatic numeric gates:
 
-- **Execution Time**: ≤ 5ms additional overhead per lemma
-- **Memory Usage**: ≤ 1MB additional memory per lemma
-- **Database Size**: Total database size ≤ 10MB
-- **Lookup Time**: Lemma lookup ≤ 1ms
+- Prefer lemmas that simplify typical goals without huge simp sets
+- Avoid registering lemmas that match too broadly on every goal
+- If a change slows interactive proofs noticeably, discuss on the PR and consider opt-in registration or narrower patterns
 
 ### Validation Rules
 
@@ -197,24 +188,15 @@ If a proposal is rejected:
 3. **Community Vote**: Community vote on controversial decisions
 4. **Final Decision**: Binding decision by project maintainers
 
-## Performance Monitoring
+## Performance monitoring
 
-### Metrics Tracked
+### What maintainers can do
 
-- **Lemma Count**: Total number of lemmas in database
-- **Usage Frequency**: How often each lemma is used
-- **Performance Impact**: Time and memory overhead per lemma
-- **Error Rates**: Failure rates for lemma applications
-- **User Satisfaction**: Community feedback on lemma quality
+- Watch build times after Mathlib bumps
+- Use local profiling (`measurePerformance`, telemetry) when investigating tactic cost
+- Gather qualitative feedback via issues and community channels
 
-### Alerting
-
-Automatic alerts for:
-
-- Performance regressions > 10%
-- Database size growth > 20%
-- High error rates > 5%
-- Unused lemmas > 90% of database
+There is no dedicated production metrics stack in this repository.
 
 ## Documentation Requirements
 
@@ -252,9 +234,7 @@ example {C D E : Type} [Category C] [Category D] [Category E]
 ```
 
 ## Performance
-- Execution time: ~2ms
-- Memory overhead: ~1KB
-- Used in ~15% of naturality! applications
+- Keep this lemma narrow enough that `naturality!` does not try it on unrelated goals.
 -/
 @[naturality]
 theorem functor_comp_naturality {C D E : Type} [Category C] [Category D] [Category E]
@@ -265,19 +245,15 @@ theorem functor_comp_naturality {C D E : Type} [Category C] [Category D] [Catego
 
 ## Enforcement
 
-### Automated Enforcement
+### Automated checks
 
-- **Loop Detection**: Automatic validation during CI
-- **Performance Testing**: Automated performance regression testing
-- **Quality Checks**: Automated code quality validation
-- **Documentation Validation**: Automatic documentation completeness checking
+On each push and pull request, the project runs a standard build and test pipeline (Lean library, examples, test modules, helper scripts, and a Docker image build). Maintainers may also run scheduled dependency updates that open a pull request when the tree still builds.
 
-### Manual Enforcement
+### Manual enforcement
 
-- **Code Review**: All changes require maintainer review
-- **Community Oversight**: Community can flag problematic lemmas
-- **Performance Monitoring**: Regular performance reviews
-- **Quality Audits**: Periodic quality assessments
+- **Code review** for lemma and tactic changes
+- **Community oversight** via issues and discussions
+- **Docs updates** when user-visible behavior changes
 
 ## Contact and Support
 
@@ -294,4 +270,4 @@ theorem functor_comp_naturality {C D E : Type} [Category C] [Category D] [Catego
 - **Performance Issues**: Use GitHub Issues for performance problems
 - **Documentation Issues**: Use GitHub Issues for documentation problems
 
-This governance framework ensures that the lean-yo lemma database remains high-quality, performant, and useful for the community while preventing bloat and maintaining clear ownership and responsibility.
+This framework is meant to keep LeanYo’s lemma story **reviewable** and **aligned with what automated checks verify**. Propose changes via pull requests; see [Contributing](../CONTRIBUTING.md).

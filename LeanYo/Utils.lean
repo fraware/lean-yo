@@ -120,7 +120,7 @@ structure TelemetryData where
   failureCount : Nat := 0
   failureReasons : List String := []
 
--- Global telemetry state (simplified for now)
+/-- Process-wide telemetry ref (`unsafePerformIO` init; same idea as `globalOptions` in tactics). -/
 def telemetryData : IO.Ref TelemetryData := unsafePerformIO (IO.mkRef {})
 
 -- Record telemetry data

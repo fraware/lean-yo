@@ -9,7 +9,7 @@ import LeanYo.SimpSets
 
 namespace LeanYo
 
--- Global options state
+/-- Process-wide tactic options. Initialized once via `unsafePerformIO` (standard pattern for tactic-global refs). -/
 def globalOptions : IO.Ref Options := unsafePerformIO (IO.mkRef {})
 
 -- Get current options

@@ -1,8 +1,15 @@
-# Lean-Yo Usage Guide
+# LeanYo usage guide
 
 ## Overview
 
-Lean-Yo provides powerful tactics for category theory proofs in Lean 4. This guide explains when and how to use each tactic effectively.
+**LeanYo** provides tactics for category-theoretic proofs in Lean 4. This guide explains when and how to use each tactic effectively.
+
+### Related documentation
+
+- [README.md](../README.md) — install, Docker, quickstart
+- [API reference](API_REFERENCE.md) — syntax and options
+- [Developer guide](DEVELOPER_GUIDE.md) — building, tests, Mathlib pins
+- [Contributing](../CONTRIBUTING.md) — how to contribute
 
 ## When to Use `yo` vs `naturality!`
 
@@ -164,9 +171,11 @@ naturality!
 yo
 ```
 
-## Performance Tips
+## Performance tips
 
-### 1. Use Specific Lemmas
+Tactics use bounded search (`naturality.maxSteps`, `naturality.timeout`). Tune these for large goals; measure impact in your own project rather than relying on repository-wide latency guarantees.
+
+### 1. Use specific lemmas
 
 Instead of relying on automatic detection, use specific lemmas when possible:
 
@@ -178,7 +187,7 @@ simp only [Functor.map_comp]
 yo
 ```
 
-### 2. Combine with Other Tactics
+### 2. Combine with other tactics
 
 ```lean
 -- Efficient combination:
@@ -186,7 +195,7 @@ naturality!
 simp only [whiskerLeft_app]
 ```
 
-### 3. Set Appropriate Limits
+### 3. Set appropriate limits
 
 For large diagrams, adjust limits:
 
@@ -204,24 +213,24 @@ naturality.timeout := 5000ms  -- For complex proofs
 3. **Try manual approach**: Break down into smaller steps
 4. **Check attributes**: Ensure required lemmas are registered with `@[naturality]` or `@[yo.fuse]`
 
-### Performance Issues
+### Performance issues
 
 1. **Reduce max steps**: Lower `naturality.maxSteps`
 2. **Set timeout**: Use `naturality.timeout`
 3. **Use explicit direction**: Set `yo.direction`
-4. **Profile with telemetry**: Enable telemetry to see where time is spent
+4. **Profile locally**: Use [`measurePerformance`](API_REFERENCE.md#performance-measurement) or telemetry helpers in your own project
 
-### Build Failures
+### Build failures
 
-1. **Check imports**: Ensure all required modules are imported
-2. **Verify dependencies**: Run `lake update` and `lake build`
-3. **Check Lean version**: Ensure compatibility with Lean 4.8.0+
+1. **Check imports**: Ensure required modules are imported (`import LeanYo`, Mathlib category theory as needed)
+2. **Sync toolchain**: Match the Lean version in [`lean-toolchain`](../lean-toolchain) and run `lake update`
+3. **Rebuild the project**: from the repository root run `make test`, or `lake update` followed by `lake build` if you only need a compile check
 
-## Best Practices
+## Best practices
 
 1. **Start simple**: Use basic tactics first, then add complexity
-2. **Use debug mode**: When tactics fail, use `?` versions to understand why
-3. **Set limits**: Always set appropriate timeouts and step limits
-4. **Register lemmas**: Use `@[naturality]` and `@[yo.fuse]` attributes for custom lemmas
-5. **Profile performance**: Use telemetry to optimize tactic usage
-6. **Document patterns**: Share successful proof patterns with the community
+2. **Use debug mode**: When tactics fail, use `yo?` / `naturality?` to see rewrites
+3. **Set limits**: Use timeouts and step limits on heavy goals
+4. **Register lemmas**: Use `@[naturality]` and `@[yo.fuse]` for lemmas the automation should see
+5. **Profile when needed**: Use telemetry / `measurePerformance` locally for hot paths
+6. **Document patterns**: Share successful proof patterns (issues, Zulip, or PRs to examples)

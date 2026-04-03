@@ -47,11 +47,12 @@ run: ## Run the library locally (build and test examples)
 		exit 1; \
 	fi
 	@echo "$(GREEN)✓ Build successful$(NC)"
-	@echo "$(YELLOW)Running example tests...$(NC)"
-	@if lake exe lean LeanYo/Examples.lean; then \
-		echo "$(GREEN)✓ Examples run successfully$(NC)"; \
+	@echo "$(YELLOW)Typechecking examples...$(NC)"
+	@if lake build LeanYo.Examples; then \
+		echo "$(GREEN)✓ Examples OK$(NC)"; \
 	else \
-		echo "$(YELLOW)⚠ Examples test skipped (file may not exist)$(NC)"; \
+		echo "$(RED)Examples build failed$(NC)"; \
+		exit 1; \
 	fi
 	@echo "$(YELLOW)Running production tests...$(NC)"
 	@if [ -f scripts/production_test.py ]; then \
@@ -63,14 +64,9 @@ run: ## Run the library locally (build and test examples)
 
 test: ## Run all tests including validation
 	@echo "$(YELLOW)Running comprehensive test suite...$(NC)"
-	lake build
-	@echo "$(YELLOW)Running Lean tests...$(NC)"
-	@for test_file in LeanYo/Tests/*.lean; do \
-		if [ -f "$$test_file" ]; then \
-			echo "Testing $$test_file..."; \
-			lake exe lean "$$test_file" || exit 1; \
-		fi; \
-	done
+	@bash scripts/ci_build.sh
+	@echo "$(YELLOW)Running benchmark executable (smoke)...$(NC)"
+	lake exe leanyo-benchmarks
 	@echo "$(YELLOW)Running production tests...$(NC)"
 	@if [ -f scripts/production_test.py ]; then \
 		python3 scripts/production_test.py; \

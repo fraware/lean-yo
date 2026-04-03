@@ -2,420 +2,309 @@
 
 # LeanYo
 
-**A Lean 4 tactic library that simplifies category theory proofs using (co)Yoneda isomorphisms**
+**Category theory tactics for Lean 4 — Yoneda rewrites and naturality automation**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Lean 4](https://img.shields.io/badge/Lean-4.8.0+-blue.svg)](https://leanprover-community.github.io/)
-[![Mathlib4](https://img.shields.io/badge/Mathlib4-compatible-green.svg)](https://github.com/leanprover-community/mathlib4)
-[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](https://github.com/fraware/lean-yo)
+[![Mathlib4](https://img.shields.io/badge/Mathlib4-pinned-green.svg)](https://github.com/leanprover-community/mathlib4)
+[![CI](https://github.com/fraware/lean-yo/actions/workflows/ci.yml/badge.svg)](https://github.com/fraware/lean-yo/actions/workflows/ci.yml)
 
-*Transform complex category theory proofs into elegant, readable solutions*
- 
+<br />
+
+*Functoriality, naturality squares, and whiskering — with tactics that stay explicit when you need them to.*
+
 </div>
 
-## Overview
+---
 
-**LeanYo** revolutionizes category theory proof development in Lean 4 by providing powerful tactics that leverage the fundamental (co)Yoneda isomorphisms. Whether you're working with functors, natural transformations, or complex categorical diagrams, LeanYo makes your proofs more intuitive and maintainable.
+## Contents
 
-### Key Features
+- [At a glance](#at-a-glance) — overview and architecture
+- [Get started](#get-started) — Docker, Lake, or clone
+- [Examples](#examples) — tactics, debug, options
+- [Extending LeanYo](#extending-leanyo) — attributes
+- [Choosing a tactic](#choosing-a-tactic)
+- [Troubleshooting](#troubleshooting) — pitfalls, performance, Make
+- [Contributing](#contributing)
+- [Compatibility and license](#compatibility-and-license)
 
-- **`yo` Tactic**: Transforms morphism goals into pointwise goals using (co)Yoneda isomorphisms
-- **`naturality!` Tactic**: Automatically closes standard naturality squares and whiskering equations
-- **Safe & Robust**: Minimal configuration with safe defaults and robust performance on large diagrams
-- **Readable**: Provides clear explanations and debug information
-- **Configurable**: Flexible options for different use cases and performance requirements
+---
 
-### Library Architecture
+## At a glance
 
-LeanYo is built with a modular architecture that separates concerns and provides clean interfaces:
+LeanYo adds proof automation for common **category theory** patterns in [Lean 4](https://leanprover.github.io/) and [Mathlib](https://github.com/leanprover-community/mathlib4):
+
+| Capability | What it does |
+|:---|:---|
+| **`yo`** | Rewrites morphism goals using (co)Yoneda-style isomorphisms toward more manageable forms |
+| **`naturality!`** | Closes many standard **naturality squares** and **whiskering** goals |
+| **`yo?` / `naturality?`** | Show the rewrite trail when you need to see what happened |
+| **Options** | Direction for `yo`, step limits and timeouts for `naturality!` |
+
+The implementation is split into tactics, a rewrite kernel, tuned simp sets, and a small options layer so behavior stays predictable on large goals.
 
 ```mermaid
-graph TB
-    subgraph "Core Tactics"
-        A[yo Tactic]
-        B[naturality! Tactic]
-    end
-    
-    subgraph "Kernel Components"
-        C[RewriteKernel]
-        D[SimpSets]
-        E[Utils]
-    end
-    
-    subgraph "Configuration"
-        F[Options]
-        G[Attributes]
-    end
-    
-    subgraph "Testing & Validation"
-        H[Test Suites]
-        I[Benchmarks]
-        J[Validation Scripts]
-    end
-    
-    A --> C
-    B --> C
-    C --> D
-    C --> E
-    A --> F
-    B --> F
-    F --> G
-    H --> A
-    H --> B
-    I --> A
-    I --> B
-    
-    style A fill:#ffeb3b
-    style B fill:#4caf50
-    style C fill:#2196f3
-    style D fill:#9c27b0
-    style E fill:#ff9800
-    style F fill:#f44336
-    style G fill:#795548
-    style H fill:#607d8b
-    style I fill:#009688
-    style J fill:#3f51b5
+flowchart TB
+  subgraph tg [Tactics]
+    Y[yo]
+    N[naturality!]
+  end
+  subgraph cr [Core]
+    K[RewriteKernel]
+    S[SimpSets]
+    U[Utils]
+  end
+  subgraph cf [Configuration]
+    O[Options]
+    A[Attributes]
+  end
+  Y --> K
+  N --> K
+  K --> S
+  K --> U
+  Y --> O
+  N --> O
+  O --> A
 ```
 
-## 🚀 Quickstart
+---
 
-### One-Command Install & Run
+## Get started
 
-**Option 1: Docker (Recommended)**
+### Docker
+
+No local Lean install required:
+
 ```bash
-# Run LeanYo instantly with Docker
 docker run --rm ghcr.io/fraware/lean-yo:latest --help
-```
-
-**Option 2: Add to Your Lean Project**
-```bash
-# Add this line to your lakefile.lean
-require lean-yo from git "https://github.com/fraware/lean-yo.git"
-
-# Then update and build
-lake update
-lake build
-```
-
-### Quick Test Drive
-
-Try LeanYo immediately with these copy-paste commands:
-
-```bash
-# Test the Docker image
-docker run --rm ghcr.io/fraware/lean-yo:latest --examples
-
-# Or run interactively
-docker run -it --rm ghcr.io/fraware/lean-yo:latest bash
-```
-
-### Development Setup
-
-```bash
-# Clone and set up development environment
-git clone https://github.com/fraware/lean-yo.git
-cd lean-yo
-make dev    # Sets up everything you need
-make run    # Test the library
-```
-
-## Installation Options
-
-### 🐳 Docker (Zero Setup)
-
-**Run Examples:**
-```bash
 docker run --rm ghcr.io/fraware/lean-yo:latest --examples
 ```
 
-**Process Your Own Files:**
+Typecheck a file in your tree (mount the directory):
+
 ```bash
-# Mount your current directory and process a file
-docker run --rm -v $(pwd):/workspace ghcr.io/fraware/lean-yo:latest /workspace/my_proof.lean
+docker run --rm -v "$(pwd):/workspace" ghcr.io/fraware/lean-yo:latest /workspace/MyProof.lean
 ```
 
-**Interactive Development:**
+Interactive shell:
+
 ```bash
-docker run -it --rm -v $(pwd):/workspace ghcr.io/fraware/lean-yo:latest bash
+docker run -it --rm -v "$(pwd):/workspace" ghcr.io/fraware/lean-yo:latest bash
 ```
 
-### 📦 Lean Package
+### Add to your Lean project
 
-Add LeanYo to your project by including it in your `lakefile.lean`:
+In `lakefile.lean`:
 
 ```lean
 require lean-yo from git "https://github.com/fraware/lean-yo.git"
 ```
 
-Then import the library in your Lean files:
+Pin a tag or revision when you care about reproducibility:
+
+```lean
+require lean-yo from git "https://github.com/fraware/lean-yo.git" @ "v1.0.0"
+```
+
+Then:
+
+```bash
+lake update
+lake build
+```
+
+In your `.lean` files:
 
 ```lean
 import LeanYo
 ```
 
-### 🛠️ Local Development
+### Work on this repository
 
 ```bash
-# Clone the repository
 git clone https://github.com/fraware/lean-yo.git
 cd lean-yo
-
-# Quick setup with Make
-make dev        # Set up development environment  
-make run        # Run and test the library
-make test       # Run comprehensive tests
-make release    # Build release artifacts
+make dev    # lake update + build
+make run    # build + check examples
+make test   # full checks (tests + helper scripts)
 ```
 
-**Manual Setup:**
-```bash
-# Install dependencies
-lake update
+For a full verification without Make, see [CONTRIBUTING.md](CONTRIBUTING.md) (same steps `make test` runs).
 
-# Build the library
-lake build
+---
 
-# Run tests (if available)
-lake test
-```
+## Examples
 
-## Usage
-
-### Basic Tactics
-
-#### The `yo` Tactic
-Transform complex morphism goals into simpler pointwise goals:
+### `yo` — functoriality and maps
 
 ```lean
 import LeanYo
 
--- Before: Complex morphism goal
 example {C D : Type} [Category C] [Category D] (F : C ⥤ D) (X : C) :
-  F.map (𝟙 X) = 𝟙 (F.obj X) := by
-  yo  -- One tactic solves it!
-
--- The yo tactic transforms this into a pointwise goal that's much easier to prove
+    F.map (𝟙 X) = 𝟙 (F.obj X) := by
+  yo
 ```
 
-#### The `naturality!` Tactic
-Automatically solve naturality squares and whiskering equations:
+### `naturality!` — squares and whiskering
 
 ```lean
--- Before: Manual naturality proof
 example {C D : Type} [Category C] [Category D] (F G : C ⥤ D) (η : F ⟶ G) (X Y : C) (f : X ⟶ Y) :
-  η.app X ≫ G.map f = F.map f ≫ η.app Y := by
-  naturality!  -- Automatic solution!
+    η.app X ≫ G.map f = F.map f ≫ η.app Y := by
+  naturality!
 ```
 
-### Debug Tactics
-
-Get detailed information about what the tactics are doing:
+### Debug variants
 
 ```lean
--- Print the exact rewrites used by yo
-yo?  -- Shows you exactly how yo transforms your goal
-
--- Print the exact rewrites used by naturality!
-naturality?  -- Reveals the naturality steps taken
+example {C D : Type} [Category C] [Category D] (F : C ⥤ D) (X : C) :
+    F.map (𝟙 X) = 𝟙 (F.obj X) := by
+  yo?
 ```
 
-### Working with Hypotheses
-
-Apply tactics to specific hypotheses:
+### Hypotheses
 
 ```lean
--- Apply yo to a hypothesis
-yo at h  -- Transform hypothesis h using Yoneda
+example {C D : Type} [Category C] [Category D] (F : C ⥤ D) (X : C)
+    (h : F.map (𝟙 X) = 𝟙 (F.obj X)) :
+    F.map (𝟙 X) = 𝟙 (F.obj X) := by
+  yo at h
 
--- Apply naturality! to a hypothesis  
-naturality! at h  -- Apply naturality reasoning to h
+example {C D : Type} [Category C] [Category D] (F G : C ⥤ D) (η : F ⟶ G) (X Y : C) (f : X ⟶ Y)
+    (h : η.app X ≫ G.map f = F.map f ≫ η.app Y) :
+    η.app X ≫ G.map f = F.map f ≫ η.app Y := by
+  naturality! at h
 ```
 
-### Configuration
-
-Customize tactic behavior for your specific needs:
+### Options
 
 ```lean
--- Set Yoneda direction
-yo.direction := covariant    -- Force covariant direction
-yo.direction := contravariant  -- Force contravariant direction
-yo.direction := auto         -- Let the tactic decide (default)
+yo.direction := auto           -- default: let the tactic choose
+yo.direction := covariant
+yo.direction := contravariant
 
--- Set naturality! performance options
-naturality.maxSteps := 64    -- Maximum rewrite steps (default: 64)
-naturality.timeout := 1500ms -- Timeout per call (default: 1500ms)
+naturality.maxSteps := 64        -- default
+naturality.timeout := 1500ms     -- default
 ```
 
-## Attributes
+---
 
-### @[naturality]
+## Extending LeanYo
 
-Register your natural transformation lemmas to make them available to `naturality!`:
+Register lemmas the tactics can use:
+
+**`@[naturality]`** — naturality-style equations for `naturality!`:
 
 ```lean
 @[naturality]
-theorem my_naturality_lemma {C D : Type} [Category C] [Category D] 
-  (F G : C ⥤ D) (η : F ⟶ G) (X Y : C) (f : X ⟶ Y) :
-  η.app X ≫ G.map f = F.map f ≫ η.app Y := by
-  -- Your proof here - now naturality! can use this lemma!
+theorem my_naturality_lemma {C D : Type} [Category C] [Category D]
+    (F G : C ⥤ D) (η : F ⟶ G) (X Y : C) (f : X ⟶ Y) :
+    η.app X ≫ G.map f = F.map f ≫ η.app Y := by
+  sorry
 ```
 
-### @[yo.fuse]
-
-Register fusion lemmas that combine `map_comp`, whisker laws, and functoriality:
+**`@[yo.fuse]`** — fusion rules for `yo` (maps, composition, whiskers):
 
 ```lean
 @[yo.fuse]
-theorem my_fusion_lemma {C D : Type} [Category C] [Category D] 
-  (F : C ⥤ D) (X Y Z : C) (f : X ⟶ Y) (g : Y ⟶ Z) :
-  F.map (f ≫ g) = F.map f ≫ F.map g := by
-  -- Your proof here - now yo can use this for fusion!
+theorem my_fusion_lemma {C D : Type} [Category C] [Category D]
+    (F : C ⥤ D) (X Y Z : C) (f : X ⟶ Y) (g : Y ⟶ Z) :
+    F.map (f ≫ g) = F.map f ≫ F.map g := by
+  sorry
 ```
 
-## When to Use Which Tactic
+---
 
-### Use `yo` when:
-- You have morphism goals involving functor maps
-- You want to transform goals using Yoneda isomorphisms  
-- You're working with `Category.comp` chains with functor maps
-- You need to simplify complex categorical expressions
+## Choosing a tactic
 
-### Use `naturality!` when:
-- You have naturality square goals
-- You're working with natural transformations
-- You have goals of the form `η.app _ ≫ _ = _ ≫ η.app _`
-- You need to prove whiskering equations
+| Situation | Reach for |
+|-----------|-----------|
+| Functor maps, composition through `F.map`, Yoneda-style rewrites | **`yo`** |
+| Naturality squares, `η.app …`, whiskering, NT composition | **`naturality!`** |
+| Unsure what fired | **`yo?`** / **`naturality?`** |
 
-## Common Pitfalls
+More detail: [Usage guide](docs/USAGE_GUIDE.md) · [API reference](docs/API_REFERENCE.md)
 
-| Issue | Solution | Prevention |
-|-------|----------|------------|
-| **Over-rewriting** | The tactics are designed to be safe, but be aware of potential infinite loops | Use debug tactics (`yo?`, `naturality?`) to understand what's happening |
-| **Direction confusion** | Use `yo.direction := auto` to let the tactic decide the direction | Start with `auto` and only specify direction when needed |
-| **Timeout issues** | Increase `naturality.timeout` for complex diagrams | Monitor performance and adjust timeout as needed |
+---
 
-## Performance
+## Troubleshooting
 
-LeanYo is designed for high performance with the following guarantees:
+### Common issues
 
-| Metric | Target | Description |
-|--------|--------|-------------|
-| **P50** | ≤ 80ms | Median response time on P0/P1 test suites |
-| **P95** | ≤ 400ms | 95th percentile response time |
-| **Efficiency** | ≥60% reduction | Reduction in manual proof steps on large diagrams |
+| Issue | What to try |
+|-------|-------------|
+| Too many rewrites or loops | `yo?` / `naturality?`; tighten `maxSteps` or `timeout` |
+| Wrong Yoneda direction | `yo.direction := auto` first, then pin `covariant` / `contravariant` if needed |
+| Timeouts on big diagrams | Raise `naturality.timeout` modestly; register narrower `@[naturality]` lemmas |
 
-### Performance Tips
+### Performance
 
-- Use `yo.direction := auto` for optimal performance
-- Increase `naturality.timeout` only when necessary
-- Register custom lemmas with `@[naturality]` and `@[yo.fuse]` attributes
+Search is bounded (`naturality.maxSteps`, `naturality.timeout`). For heavy proofs, tune locally and register only the lemmas you need.
 
-## 🧪 Testing & Validation
-
-LeanYo includes comprehensive testing and validation tools:
+### Tests and Make targets
 
 ```bash
-# Run all tests
-make test
-
-# Quick build check
-make quick-test
-
-# Run production test suite
-python3 scripts/production_test.py
-
-# Validate lemma database
-python3 scripts/validate_lemmas.py
-
-# Check dependencies
-make check-deps
+make test        # full suite
+make quick-test  # library build only
+make check-deps  # toolchain sanity
 ```
 
-### Available Make Targets
+<details>
+<summary><strong>All Make targets</strong> (click to expand)</summary>
 
 | Command | Description |
 |---------|-------------|
-| `make dev` | Set up local development environment |
-| `make run` | Run and test the library locally |
-| `make test` | Run comprehensive test suite |
+| `make dev` | `lake update` + `lake build` |
+| `make run` | Build + check examples |
+| `make test` | Full tests and project checks |
 | `make build` | Build the library |
-| `make clean` | Clean build artifacts |
-| `make release` | Build and publish release (supports `DRY_RUN=1`) |
-| `make docker-build` | Build Docker image |
-| `make docker-push` | Push Docker image to registry |
-| `make ci` | Run complete CI pipeline locally |
-| `make help` | Show all available commands |
+| `make clean` | Clean artifacts |
+| `make release` | Release flow (`DRY_RUN=1` supported) |
+| `make docker-build` | Build the image locally |
+| `make docker-push` | Push image (auth required) |
+| `make docker-run` | Run container help |
+| `make ci` | Local pipeline approximation |
+| `make help` | List targets |
 
-### Docker Commands
+</details>
 
 ```bash
-# Build Docker image locally
-make docker-build
-
-# Run Docker container
-make docker-run
-
-# Push to registry (requires authentication)
-make docker-push
+make docker-build   # build image
+make docker-run     # run `--help`
 ```
+
+---
 
 ## Contributing
 
-We welcome contributions to LeanYo! Here's how you can help:
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for Mathlib pins, review expectations, and documentation updates.
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Add tests** for new functionality
-4. **Ensure** all tests pass
-5. **Submit** a pull request
-
-### Development Setup
+1. Fork and branch from `main`
+2. Add or extend tests in `LeanYo.Tests.P0` / `P1` / `P2` when behavior changes
+3. Run **`make test`** before opening a PR
+4. Update `README.md` or `docs/` if users see different behavior
 
 ```bash
-# Clone your fork
 git clone https://github.com/yourusername/lean-yo.git
 cd lean-yo
-
-# Set up development environment
-make dev
-
-# Run tests to ensure everything works
-make test
+make dev && make test
 ```
 
-### Testing Your Changes
+---
 
-```bash
-# Quick validation
-make quick-test
+## Compatibility and license
 
-# Full test suite
-make test
-
-# Run CI pipeline locally
-make ci
-
-# Test Docker build
-make docker-build
-```
-
-## License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-## Compatibility
-
-| Component | Version | Status |
-|-----------|---------|--------|
-| **Lean 4** | v4.8.0+ | Fully supported |
-| **Mathlib4** | main & stable | Compatible |
+| Item | Where to look |
+|:---|:---|
+| **Lean** | [lean-toolchain](lean-toolchain) |
+| **Mathlib** | [lakefile.lean](lakefile.lean) · [lake-manifest.json](lake-manifest.json) |
+| **License** | [MIT](LICENSE) |
 
 ---
 
 <div align="center">
 
-**Made with care for the Lean community**
+**LeanYo**
 
-[Report Bug](https://github.com/fraware/lean-yo/issues) • [Request Feature](https://github.com/fraware/lean-yo/issues) • [View Documentation](https://github.com/fraware/lean-yo/tree/main/docs)
+[Issues](https://github.com/fraware/lean-yo/issues) · [Docs](https://github.com/fraware/lean-yo/tree/main/docs) · [Contributing](CONTRIBUTING.md)
 
 </div>

@@ -1,0 +1,29 @@
+# Lake / Lean
+.lake/
+build/
+*.olean
+*.trace
+
+# Editor / OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+.Python
+venv/
+env/
+.env
+.env.*
+
+# Release / packaging
+dist/
+*.tar.gz
+
+# Logs
+*.log
