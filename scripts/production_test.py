@@ -37,6 +37,30 @@ class ProductionTester:
         self.project_root = project_root
         self.test_results: List[TestResult] = []
 
+    def _first_existing(self, candidates: List[Path]) -> Optional[Path]:
+        for path in candidates:
+            if path.exists():
+                return path
+        return None
+
+    def _read_text(self, candidates: List[Path]) -> str:
+        path = self._first_existing(candidates)
+        if path is None:
+            return ""
+        return path.read_text(encoding="utf-8")
+
+    def _tactics_content(self) -> str:
+        base = self.project_root / "LeanYo"
+        files = [
+            base / "Tactics.lean",
+            base / "Tactics" / "Yo.lean",
+            base / "Tactics" / "Naturality.lean",
+            base / "Tactics" / "Scripts.lean",
+        ]
+        return "\n".join(
+            path.read_text(encoding="utf-8") for path in files if path.exists()
+        )
+
     def test_product_scope(self) -> TestResult:
         """Test Product Scope components."""
         print("Testing Product Scope...")
@@ -549,19 +573,16 @@ class ProductionTester:
     # Helper methods for checking implementations
     def _check_tactic_implementation(self, tactic: str) -> bool:
         """Check if a tactic is properly implemented."""
-        tactics_file = self.project_root / "LeanYo" / "Tactics.lean"
-        if not tactics_file.exists():
+        content = self._tactics_content()
+        if not content:
             return False
 
-        with open(tactics_file, "r", encoding="utf-8") as f:
-            content = f.read()
-
         if tactic == "yo":
-            return 'elab "yo"' in content
+            return 'elab "yo"' in content and "runYoScripts" in content
         elif tactic == "yo at h":
             return 'elab "yo" "at" h:ident' in content
         elif tactic == "naturality!":
-            return 'elab "naturality!"' in content
+            return 'elab "naturality!"' in content and "runNaturalityScripts" in content
         elif tactic == "yo?":
             return 'elab "yo?"' in content
         elif tactic == "naturality?":
@@ -571,28 +592,32 @@ class ProductionTester:
 
     def _check_attribute_implementation(self, attr: str) -> bool:
         """Check if an attribute is properly implemented."""
-        attributes_file = self.project_root / "LeanYo" / "Attributes.lean"
-        if not attributes_file.exists():
+        content = self._read_text(
+            [
+                self.project_root / "LeanYo" / "Core" / "Attributes.lean",
+                self.project_root / "LeanYo" / "Attributes.lean",
+            ]
+        )
+        if not content:
             return False
 
-        with open(attributes_file, "r", encoding="utf-8") as f:
-            content = f.read()
-
         if attr == "@[naturality]":
-            return "register_attribute naturality" in content
+            return "registerLabelAttr `naturality" in content
         elif attr == "@[yo.fuse]":
-            return "register_attribute yo.fuse" in content
+            return "registerLabelAttr `yo.fuse" in content
 
         return False
 
     def _check_option_implementation(self, option: str) -> bool:
         """Check if an option is properly implemented."""
-        options_file = self.project_root / "LeanYo" / "Options.lean"
-        if not options_file.exists():
+        content = self._read_text(
+            [
+                self.project_root / "LeanYo" / "Core" / "Options.lean",
+                self.project_root / "LeanYo" / "Options.lean",
+            ]
+        )
+        if not content:
             return False
-
-        with open(options_file, "r", encoding="utf-8") as f:
-            content = f.read()
 
         if option == "yo.direction":
             return "YoDirection" in content
@@ -605,12 +630,14 @@ class ProductionTester:
 
     def _check_safe_defaults(self) -> bool:
         """Check if safe defaults are configured."""
-        options_file = self.project_root / "LeanYo" / "Options.lean"
-        if not options_file.exists():
+        content = self._read_text(
+            [
+                self.project_root / "LeanYo" / "Core" / "Options.lean",
+                self.project_root / "LeanYo" / "Options.lean",
+            ]
+        )
+        if not content:
             return False
-
-        with open(options_file, "r", encoding="utf-8") as f:
-            content = f.read()
 
         return (
             "direction : YoDirection := YoDirection.auto" in content
@@ -620,24 +647,12 @@ class ProductionTester:
 
     def _check_error_handling(self) -> bool:
         """Check if error handling is implemented."""
-        tactics_file = self.project_root / "LeanYo" / "Tactics.lean"
-        if not tactics_file.exists():
-            return False
-
-        with open(tactics_file, "r", encoding="utf-8") as f:
-            content = f.read()
-
+        content = self._tactics_content()
         return "throwError" in content
 
     def _check_explanations(self) -> bool:
         """Check if readable explanations are implemented."""
-        tactics_file = self.project_root / "LeanYo" / "Tactics.lean"
-        if not tactics_file.exists():
-            return False
-
-        with open(tactics_file, "r", encoding="utf-8") as f:
-            content = f.read()
-
+        content = self._tactics_content()
         return "logInfo" in content and "rewrites" in content
 
     def _check_detection_mechanism(self) -> bool:
@@ -653,29 +668,38 @@ class ProductionTester:
 
     def _check_rewrite_kernel(self) -> bool:
         """Check if rewrite kernel is implemented."""
-        kernel_file = self.project_root / "LeanYo" / "RewriteKernel.lean"
-        if not kernel_file.exists():
-            return False
-
-        with open(kernel_file, "r", encoding="utf-8") as f:
-            content = f.read()
-
+        content = self._read_text(
+            [
+                self.project_root / "LeanYo" / "Core" / "RewriteKernel.lean",
+                self.project_root / "LeanYo" / "RewriteKernel.lean",
+            ]
+        )
         return (
             "yonedaStep" in content
             and "naturalityStep" in content
             and "rewriteKernel" in content
+            and "chainRewrite" in content
         )
 
     def _check_simp_integration(self) -> bool:
         """Check if simp integration is implemented."""
-        simpsets_file = self.project_root / "LeanYo" / "SimpSets.lean"
-        if not simpsets_file.exists():
-            return False
-
-        with open(simpsets_file, "r", encoding="utf-8") as f:
-            content = f.read()
-
-        return "smartSimp" in content
+        simpsets = self._read_text(
+            [
+                self.project_root / "LeanYo" / "Core" / "SimpSets.lean",
+                self.project_root / "LeanYo" / "SimpSets.lean",
+            ]
+        )
+        runner = self._read_text(
+            [self.project_root / "LeanYo" / "Core" / "SimpRunner.lean"]
+        )
+        registry = self._read_text(
+            [self.project_root / "LeanYo" / "Core" / "LemmaRegistry.lean"]
+        )
+        return (
+            "smartSimp" in simpsets
+            and "simpExpr" in runner
+            and "functorialityLemmas" in registry
+        )
 
     def _check_safety_measures(self) -> bool:
         """Check if safety measures are implemented."""
@@ -859,7 +883,7 @@ class ProductionTester:
         with open(governance_file, "r", encoding="utf-8") as f:
             content = f.read()
 
-        return "Loop Prevention" in content
+        return "loop prevention" in content.lower()
 
     def run_all_tests(self) -> Dict[str, Any]:
         """Run all production tests."""
@@ -977,8 +1001,8 @@ class ProductionTester:
         print("-" * 80)
 
         for result in report["detailed_results"]:
-            status = "✅ PASS" if result["passed"] else "❌ FAIL"
-            score_bar = "█" * int(result["score"] * 20) + "░" * (
+            status = "PASS" if result["passed"] else "FAIL"
+            score_bar = "#" * int(result["score"] * 20) + "-" * (
                 20 - int(result["score"] * 20)
             )
 
@@ -997,7 +1021,7 @@ class ProductionTester:
 
         if summary["overall_readiness"] == "PRODUCTION READY":
             print(
-                "🎉 Congratulations! The lean-yo library is ready for production deployment."
+                "The lean-yo library is ready for production deployment."
             )
             print("   - All components are working correctly")
             print("   - Performance meets SLA requirements")
@@ -1005,14 +1029,14 @@ class ProductionTester:
             print("   - Documentation is comprehensive")
         elif summary["overall_readiness"] == "READY WITH MINOR ENHANCEMENTS":
             print(
-                "✅ The lean-yo library is ready for production with minor improvements."
+                "The lean-yo library is ready for production with minor improvements."
             )
             print("   - Address the warnings listed above")
             print("   - Consider implementing suggested enhancements")
             print("   - Monitor performance in production")
         else:
             print(
-                "⚠️  The lean-yo library needs improvements before production deployment."
+                "The lean-yo library needs improvements before production deployment."
             )
             print("   - Fix all errors listed above")
             print("   - Address warnings to improve quality")

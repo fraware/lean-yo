@@ -5,7 +5,7 @@
 **Category theory tactics for Lean 4 — Yoneda rewrites and naturality automation**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Lean 4](https://img.shields.io/badge/Lean-4.8.0+-blue.svg)](https://leanprover-community.github.io/)
+[![Lean 4](https://img.shields.io/badge/Lean-4.31.0--rc1-blue.svg)](https://leanprover-community.github.io/)
 [![Mathlib4](https://img.shields.io/badge/Mathlib4-pinned-green.svg)](https://github.com/leanprover-community/mathlib4)
 [![CI](https://github.com/fraware/lean-yo/actions/workflows/ci.yml/badge.svg)](https://github.com/fraware/lean-yo/actions/workflows/ci.yml)
 
@@ -48,20 +48,27 @@ flowchart TB
   subgraph tg [Tactics]
     Y[yo]
     N[naturality!]
+    SC[Scripts]
   end
   subgraph cr [Core]
+    LR[LemmaRegistry]
+    SR[SimpRunner]
     K[RewriteKernel]
-    S[SimpSets]
+    SS[SimpSets]
     U[Utils]
   end
   subgraph cf [Configuration]
     O[Options]
     A[Attributes]
   end
-  Y --> K
-  N --> K
-  K --> S
-  K --> U
+  Y --> SC
+  N --> SC
+  SC --> LR
+  K --> SS
+  SS --> SR
+  SS --> LR
+  SR --> LR
+  K --> A
   Y --> O
   N --> O
   O --> A

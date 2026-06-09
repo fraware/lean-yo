@@ -16,7 +16,7 @@ For real tactic timings you would need a dedicated harness (e.g. repeated `MetaM
 namespace LeanYo.Tests.Benchmarks
 
 private def separatorLine : String :=
-  String.mk (List.replicate 60 '=')
+  String.ofList (List.replicate 60 '=')
 
 /-- Minimal timing helper: returns elapsed milliseconds. -/
 private def timeLoop (name : String) (iterations : Nat) (body : Nat → IO Unit) : IO Unit := do

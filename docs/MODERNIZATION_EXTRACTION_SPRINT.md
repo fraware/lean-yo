@@ -10,8 +10,8 @@ The repository is valuable primarily as a Mathlib proof-friction detector. The m
 
 Current constraints:
 
-- Current toolchain in `lean-toolchain`: `leanprover/lean4:v4.8.0`.
-- `lakefile.lean` pins Mathlib at `v4.8.0`.
+- Current toolchain in `lean-toolchain`: `leanprover/lean4:v4.31.0-rc1`.
+- `lakefile.lean` pins Mathlib at `v4.31.0-rc1`.
 - The public top-level module imports tactics, attributes, options, rewrite kernel, utilities, and simp sets.
 - The README presents `yo`, `yo?`, `naturality!`, and `naturality?` as the main user-facing commands.
 
@@ -131,4 +131,13 @@ The following should remain repository-local during this sprint:
 
 ## Build certification status
 
-This document is a planning and extraction artifact. It does not certify that the repository has been built on Lean 4.31 yet. Certification requires a successful local or CI run of the commands in Gate 1.
+Certified on branch `modernize/lean-4-31-extraction` (2026-06-09):
+
+- `lake update` — pass
+- `lake build LeanYo` — pass (core library + `LeanYo.Examples`)
+- `lake build LeanYoTests` — pass (`P0`–`P2`, Manual + Tactic sections)
+- `lake exe leanyo-benchmarks` — pass (smoke IO harness)
+- Tactics `yo` / `naturality!` — pass on regression suite via `LeanYo/Tactics/Scripts.lean`
+- Full `make test` — run in Linux CI (`scripts/ci_build.sh`); Windows requires bash
+
+See `docs/EXTRACTION_LEDGER.md` for upstream candidate rows.

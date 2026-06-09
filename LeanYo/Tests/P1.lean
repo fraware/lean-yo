@@ -3,58 +3,94 @@ import Mathlib.CategoryTheory.Category.Basic
 import Mathlib.CategoryTheory.Functor.Basic
 import Mathlib.CategoryTheory.NatTrans
 import Mathlib.CategoryTheory.Functor.Category
+import Mathlib.CategoryTheory.Whiskering
 
--- P1 Test Suite: whiskering, horizontal/vertical composition of NTs, bifunctors
+open CategoryTheory Functor
 
 namespace LeanYo.Tests.P1
 
--- Test horizontal composition of natural transformations
+/-! ### Manual proofs -/
+
+section Manual
+
 example {C D E : Type} [Category C] [Category D] [Category E]
-  (F G H : C ⥤ D) (η : F ⟶ G) (θ : G ⟶ H) (X Y : C) (f : X ⟶ Y) :
-  (η ≫ θ).app X ≫ H.map f = F.map f ≫ (η ≫ θ).app Y := by
-  -- This should be solved by naturality! tactic
+    (F G H : C ⥤ D) (η : F ⟶ G) (θ : G ⟶ H) {X Y : C} (f : X ⟶ Y) :
+    (η ≫ θ).app X ≫ H.map f = F.map f ≫ (η ≫ θ).app Y := by
+  simp [NatTrans.comp_app, NatTrans.naturality]
+
+example {C D E : Type} [Category C] [Category D] [Category E]
+    (F G : C ⥤ D) (H I : D ⥤ E) (η : F ⟶ G) (θ : H ⟶ I) {X Y : C} (f : X ⟶ Y) :
+    (η ◫ θ).app X ≫ (G ⋙ I).map f = (F ⋙ H).map f ≫ (η ◫ θ).app Y := by
+  rw [← NatTrans.naturality]
+
+example {C D E : Type} [Category C] [Category D] [Category E]
+    (F G : C ⥤ D) (H : D ⥤ E) (η : F ⟶ G) {X Y : C} (f : X ⟶ Y) :
+    (whiskerRight η H).app X ≫ (G ⋙ H).map f = (F ⋙ H).map f ≫ (whiskerRight η H).app Y := by
+  rw [← NatTrans.naturality]
+
+example {C D E : Type} [Category C] [Category D] [Category E]
+    (F : C ⥤ D) (G H : D ⥤ E) (η : G ⟶ H) {X Y : C} (f : X ⟶ Y) :
+    (whiskerLeft F η).app X ≫ (F ⋙ H).map f = (F ⋙ G).map f ≫ (whiskerLeft F η).app Y := by
+  rw [← NatTrans.naturality]
+
+example {C D E : Type} [Category C] [Category D] [Category E]
+    (F : C ⥤ D ⥤ E) {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    F.map (f ≫ g) = F.map f ≫ F.map g := by
+  simp
+
+example {C D E : Type} [Category C] [Category D] [Category E]
+    (F G : C ⥤ D ⥤ E) (η : F ⟶ G) {X Y : C} (f : X ⟶ Y) (Z : D) :
+    (η.app X).app Z ≫ (G.map f).app Z = (F.map f).app Z ≫ (η.app Y).app Z := by
+  simp [NatTrans.naturality_app]
+
+example {C D E F : Type} [Category C] [Category D] [Category E] [Category F]
+    (G : C ⥤ D) (H : D ⥤ E) (I : E ⥤ F) (η : H ⟶ H) {X Y : C} (f : X ⟶ Y) :
+    (whiskerRight η I).app (G.obj X) ≫ (H ⋙ I).map (G.map f) =
+      (H ⋙ I).map (G.map f) ≫ (whiskerRight η I).app (G.obj Y) := by
+  rw [← NatTrans.naturality]
+
+end Manual
+
+/-! ### Tactic regression -/
+
+section Tactic
+
+example {C D E : Type} [Category C] [Category D] [Category E]
+    (F G H : C ⥤ D) (η : F ⟶ G) (θ : G ⟶ H) {X Y : C} (f : X ⟶ Y) :
+    (η ≫ θ).app X ≫ H.map f = F.map f ≫ (η ≫ θ).app Y := by
   naturality!
 
--- Test vertical composition of natural transformations
 example {C D E : Type} [Category C] [Category D] [Category E]
-  (F G : C ⥤ D) (H I : D ⥤ E) (η : F ⟶ G) (θ : H ⟶ I) (X Y : C) (f : X ⟶ Y) :
-  (η ◫ θ).app X ≫ (I ⋙ G).map f = (H ⋙ F).map f ≫ (η ◫ θ).app Y := by
-  -- This should be solved by naturality! tactic
+    (F G : C ⥤ D) (H I : D ⥤ E) (η : F ⟶ G) (θ : H ⟶ I) {X Y : C} (f : X ⟶ Y) :
+    (η ◫ θ).app X ≫ (G ⋙ I).map f = (F ⋙ H).map f ≫ (η ◫ θ).app Y := by
   naturality!
 
--- Test whiskering on the left
 example {C D E : Type} [Category C] [Category D] [Category E]
-  (F G : C ⥤ D) (H : D ⥤ E) (η : F ⟶ G) (X Y : C) (f : X ⟶ Y) :
-  (H ◫ η).app X ≫ (H ⋙ G).map f = (H ⋙ F).map f ≫ (H ◫ η).app Y := by
-  -- This should be solved by naturality! tactic
+    (F G : C ⥤ D) (H : D ⥤ E) (η : F ⟶ G) {X Y : C} (f : X ⟶ Y) :
+    (whiskerRight η H).app X ≫ (G ⋙ H).map f = (F ⋙ H).map f ≫ (whiskerRight η H).app Y := by
   naturality!
 
--- Test whiskering on the right
 example {C D E : Type} [Category C] [Category D] [Category E]
-  (F : C ⥤ D) (G H : D ⥤ E) (η : G ⟶ H) (X Y : C) (f : X ⟶ Y) :
-  (η ◫ F).app X ≫ (H ⋙ F).map f = (G ⋙ F).map f ≫ (η ◫ F).app Y := by
-  -- This should be solved by naturality! tactic
+    (F : C ⥤ D) (G H : D ⥤ E) (η : G ⟶ H) {X Y : C} (f : X ⟶ Y) :
+    (whiskerLeft F η).app X ≫ (F ⋙ H).map f = (F ⋙ G).map f ≫ (whiskerLeft F η).app Y := by
   naturality!
 
--- Test bifunctor functoriality
 example {C D E : Type} [Category C] [Category D] [Category E]
-  (F : C ⥤ D ⥤ E) (X Y Z : C) (f : X ⟶ Y) (g : Y ⟶ Z) :
-  F.map (f ≫ g) = F.map f ≫ F.map g := by
-  -- This should be solved by yo tactic
+    (F : C ⥤ D ⥤ E) {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    F.map (f ≫ g) = F.map f ≫ F.map g := by
   yo
 
--- Test bifunctor with natural transformations
 example {C D E : Type} [Category C] [Category D] [Category E]
-  (F G : C ⥤ D ⥤ E) (η : F ⟶ G) (X Y : C) (f : X ⟶ Y) (Z : D) :
-  (η.app X).app Z ≫ (G.map f).app Z = (F.map f).app Z ≫ (η.app Y).app Z := by
-  -- This should be solved by naturality! tactic
+    (F G : C ⥤ D ⥤ E) (η : F ⟶ G) {X Y : C} (f : X ⟶ Y) (Z : D) :
+    (η.app X).app Z ≫ (G.map f).app Z = (F.map f).app Z ≫ (η.app Y).app Z := by
   naturality!
 
--- Test complex composition with multiple functors and natural transformations
 example {C D E F : Type} [Category C] [Category D] [Category E] [Category F]
-  (G : C ⥤ D) (H : D ⥤ E) (I : E ⥤ F) (η : H ⟶ H) (X Y : C) (f : X ⟶ Y) :
-  (I ⋙ H ⋙ G).map f ≫ (I ⋙ η).app (G.obj Y) = (I ⋙ η).app (G.obj X) ≫ (I ⋙ H ⋙ G).map f := by
-  -- This should be solved by naturality! tactic
+    (G : C ⥤ D) (H : D ⥤ E) (I : E ⥤ F) (η : H ⟶ H) {X Y : C} (f : X ⟶ Y) :
+    (whiskerRight η I).app (G.obj X) ≫ (H ⋙ I).map (G.map f) =
+      (H ⋙ I).map (G.map f) ≫ (whiskerRight η I).app (G.obj Y) := by
   naturality!
+
+end Tactic
 
 end LeanYo.Tests.P1
