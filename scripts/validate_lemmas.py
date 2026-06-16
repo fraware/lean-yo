@@ -70,8 +70,10 @@ class LemmaValidator:
         skip_patterns = [
             ".lake",
             "build",
-            "Tests/",  # Skip test files
-            "Examples.lean",  # Skip example files
+            "Tests/",
+            "Examples.lean",
+            "LemmaRegistry.lean",
+            "Attributes.lean",
         ]
 
         return any(pattern in str(file_path) for pattern in skip_patterns)
@@ -87,7 +89,9 @@ class LemmaValidator:
             # Find lemmas with @[naturality] or @[yo.fuse] attributes
             lines = content.split("\n")
             for i, line in enumerate(lines):
-                if "@[naturality]" in line or "@[yo.fuse]" in line:
+                if re.match(r"^\s*@\[naturality\]\s*$", line) or re.match(
+                    r"^\s*@\[yo\.fuse\]\s*$", line
+                ):
                     lemma_info = self._parse_lemma(lines, i, file_path)
                     if lemma_info:
                         lemmas.append(lemma_info)
@@ -329,12 +333,12 @@ class LemmaValidator:
         print("-" * 60)
 
         for result in report["detailed_results"]:
-            status = "✅ PASS" if result["passed"] else "❌ FAIL"
+            status = "PASS" if result["passed"] else "FAIL"
             print(f"{status} {result['name']} ({result['attribute']})")
             print(f"    File: {result['file']}")
             print(f"    Performance Score: {result['performance_score']:.2f}")
             print(
-                f"    Loop Detection: {'✅' if result['loop_detection_passed'] else '❌'}"
+                f"    Loop Detection: {'ok' if result['loop_detection_passed'] else 'fail'}"
             )
 
             if result["errors"]:
