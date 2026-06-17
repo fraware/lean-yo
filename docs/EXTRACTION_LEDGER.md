@@ -4,7 +4,15 @@ This ledger records Mathlib upstream candidates discovered while modernizing `le
 
 Toolchain: `leanprover/lean4:v4.31.0` · Mathlib: `v4.31.0`
 
-**Upstream queue:** [docs/upstream/MATHLIB_NATURALITY_PR_QUEUE.md](upstream/MATHLIB_NATURALITY_PR_QUEUE.md) · **First PR draft:** [docs/upstream/MATHLIB_PR_DRAFT_nat_examples.md](upstream/MATHLIB_PR_DRAFT_nat_examples.md) · **Index:** [docs/upstream/README.md](upstream/README.md)
+**Upstream queue:** [docs/upstream/MATHLIB_NATURALITY_PR_QUEUE.md](upstream/MATHLIB_NATURALITY_PR_QUEUE.md) · **P1 draft:** [docs/upstream/MATHLIB_PR_DRAFT_nat_examples.md](upstream/MATHLIB_PR_DRAFT_nat_examples.md) · **P2 draft:** [docs/upstream/MATHLIB_PR_DRAFT_reassoc_lemmas.md](upstream/MATHLIB_PR_DRAFT_reassoc_lemmas.md) · **Index:** [docs/upstream/README.md](upstream/README.md)
+
+## Upstream status (Mathlib)
+
+| PR | Queue | State |
+|----|-------|-------|
+| [mathlib4#40707](https://github.com/leanprover-community/mathlib4/pull/40707) | P1 rows 1–12 (naturality and whiskering examples) | submitted — [CI/review notes](upstream/MATHLIB_PR_40707_STATUS.md) |
+| P2 reassoc lemmas (rows 13–18) | draft only | open after #40707 merges |
+| P3 simp bundles (rows 19–23) | planned | after P2 |
 
 ## Coverage index (required extraction categories)
 
@@ -65,7 +73,7 @@ Toolchain: `leanprover/lean4:v4.31.0` · Mathlib: `v4.31.0`
 | `lake exe leanyo-benchmarks` | pass (smoke) |
 | `scripts/production_test.py` | pass |
 | `scripts/validate_lemmas.py` | pass |
-| `scripts/ci_build.sh` / `make test` | equivalent steps run on Windows (bash not required) |
+| `scripts/ci_build.sh` / `scripts/ci_build.ps1` / `make test` | pass (Windows: LF shell script + PowerShell fallback) |
 
 ### Tactic implementation notes
 
@@ -75,7 +83,7 @@ Toolchain: `leanprover/lean4:v4.31.0` · Mathlib: `v4.31.0`
 
 ## Upstream PR order (lemma-first; no tactics)
 
-1. **`CategoryTheory: add naturality and whiskering examples`** — manual proofs from `LeanYo/Examples.lean` (naturality square, left/right whiskering naturality, functor map over identity/composition, Yoneda usage).
-2. **`CategoryTheory: add reassociated naturality lemmas`** (if friction remains) — rows labeled *reassociated naturality square*, vertical/`hcomp` combined `simp` lemmas, and whiskering one-shot `simp` bundles.
+1. **`CategoryTheory: add naturality and whiskering examples`** — **submitted** as [mathlib4#40707](https://github.com/leanprover-community/mathlib4/pull/40707) (manual proofs from `LeanYo/Examples.lean`, rows 1–12).
+2. **`CategoryTheory: add reassociated naturality lemmas`** — draft at [MATHLIB_PR_DRAFT_reassoc_lemmas.md](upstream/MATHLIB_PR_DRAFT_reassoc_lemmas.md); rows 13–18 after P1 merges.
 3. Yoneda composite-map examples and research rows (`F ⋙ yoneda` map goals).
 4. Tactic discussion only after ledger friction is lemma-level only.

@@ -26,6 +26,7 @@
 - [Choosing a tactic](#choosing-a-tactic)
 - [Troubleshooting](#troubleshooting) — pitfalls, performance, Make
 - [Contributing](#contributing)
+- [Upstream Mathlib](#upstream-mathlib)
 - [Compatibility and license](#compatibility-and-license)
 
 ---
@@ -295,6 +296,12 @@ git clone https://github.com/yourusername/lean-yo.git
 cd lean-yo
 make dev && make test
 ```
+
+---
+
+## Upstream Mathlib
+
+Category-theory lemmas and examples from this repo are being upstreamed to [Mathlib4](https://github.com/leanprover-community/mathlib4). Tracking: [docs/upstream/](docs/upstream/) · live P1 PR: [#40707](https://github.com/leanprover-community/mathlib4/pull/40707).
 
 ---
 
