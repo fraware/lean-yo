@@ -5,7 +5,7 @@
 **Category theory tactics for Lean 4 — Yoneda rewrites and naturality automation**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Lean 4](https://img.shields.io/badge/Lean-4.31.0--rc1-blue.svg)](https://leanprover-community.github.io/)
+[![Lean 4](https://img.shields.io/badge/Lean-4.31.0-blue.svg)](https://leanprover-community.github.io/)
 [![Mathlib4](https://img.shields.io/badge/Mathlib4-pinned-green.svg)](https://github.com/leanprover-community/mathlib4)
 [![CI](https://github.com/fraware/lean-yo/actions/workflows/ci.yml/badge.svg)](https://github.com/fraware/lean-yo/actions/workflows/ci.yml)
 

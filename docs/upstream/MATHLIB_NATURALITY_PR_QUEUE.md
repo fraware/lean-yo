@@ -1,6 +1,8 @@
 # Mathlib naturality upstream PR queue (Lean 4.31.0)
 
-Classification of every extraction target from `docs/EXTRACTION_LEDGER.md` and manual proofs in `LeanYo/Examples.lean`. First upstream PRs are **lemmas and examples only** (no `yo` / `naturality!` tactics).
+Classification of every extraction target from [`docs/EXTRACTION_LEDGER.md`](../EXTRACTION_LEDGER.md) and manual proofs in [`LeanYo/Examples.lean`](../../LeanYo/Examples.lean). First upstream PRs are **lemmas and examples only** (no `yo` / `naturality!` tactics).
+
+**First PR draft:** [MATHLIB_PR_DRAFT_nat_examples.md](MATHLIB_PR_DRAFT_nat_examples.md) · **Index:** [README.md](README.md)
 
 Toolchain: `leanprover/lean4:v4.31.0` · Mathlib: `v4.31.0`
 
@@ -40,7 +42,7 @@ Toolchain: `leanprover/lean4:v4.31.0` · Mathlib: `v4.31.0`
 | 21 | simp lemma candidate | `(whiskerRight η H).app X ≫ (G ⋙ H).map f = (F ⋙ H).map f ≫ (whiskerRight η H).app Y` as one-shot `@[simp]` | lines 65–68 | `Mathlib/CategoryTheory/Whiskering.lean` | `add whiskerRight naturality simp lemma` | P3 |
 | 22 | simp lemma candidate | `(whiskerLeft F η).app X ≫ (F ⋙ H).map f = (F ⋙ G).map f ≫ (whiskerLeft F η).app Y` as one-shot `@[simp]` | lines 70–73 | `Mathlib/CategoryTheory/Whiskering.lean` | `add whiskerLeft naturality simp lemma` | P3 |
 | 23 | simp lemma candidate | `(η.app X).app Z ≫ (G.map f).app Z = (F.map f).app Z ≫ (η.app Y).app Z` for `F : C ⥤ D ⥤ E` | lines 75–78 | `Mathlib/CategoryTheory/Functor/Category.lean` | `add bifunctor naturality_app simp lemma` | P3 |
-| 24 | future tactic-only | `(η ◫ yoneda).app X = (yoneda ◫ η).app X` (whiskering vs `hcomp` interchange; types delicate) | *no manual proof yet* | `Mathlib/CategoryTheory/Yoneda.lean` | — (research) | P4 |
+| 24 | future tactic-only | `(η ◫ yoneda).app X = (yoneda ◫ η).app X` — **blocked (ill-typed)**; refined: `(η ◫ 𝟙 yoneda).app X = (whiskerRight η yoneda).app X` and `(𝟙 yoneda ◫ η).app X = (whiskerLeft yoneda η).app X` (η between functors `(Cᵒᵖ ⥤ Type) ⥤ E`) via `hcomp_id` / `id_hcomp` | lines 114–122 (refined); original goal does not typecheck | `Mathlib/CategoryTheory/Yoneda.lean` | — (blocked) | P4 |
 
 ### Ledger infra rows (not queued for Mathlib)
 
@@ -66,4 +68,8 @@ Toolchain: `leanprover/lean4:v4.31.0` · Mathlib: `v4.31.0`
 1. **P1 batch** — rows 1–12: examples section in `NatTrans`, `Whiskering`, `Functor`, `Yoneda` (ledger: *CategoryTheory: add naturality and whiskering examples*).
 2. **P2 batch** — rows 13–18: reassoc lemmas if example-only PRs leave `simp`/`cat_disch` friction (ledger: *CategoryTheory: add reassociated naturality lemmas*).
 3. **P3 batch** — rows 19–23: one-shot `@[simp]` bundles where manual proofs still need multi-lemma `simp` lists.
-4. **P4** — row 24 and infra: stay repo-local until types and interchange law are settled.
+4. **P4** — row 24 (blocked as stated; refined whiskering examples in `Examples.lean`) and infra: stay repo-local.
+
+### Row 24 typecheck note
+
+Lean 4.31 rejects `(η ◫ yoneda)` because `yoneda : C ⥤ Cᵒᵖ ⥤ Type _` is a **functor**, while `◫` (`NatTrans.hcomp`) expects natural transformations. Mathlib already identifies whiskering with horizontal composition against identity natural transformations (`Functor.hcomp_id`, `Functor.id_hcomp`). The refined examples in `LeanYo/Examples.lean` (lines 114–122) use `𝟙 yoneda` on the correct side; the two refined goals are **not** comparable (different functor categories). There is no true symmetric lemma between the ill-typed sides of the original goal.

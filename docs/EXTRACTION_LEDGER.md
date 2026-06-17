@@ -1,8 +1,10 @@
-# Extraction ledger (Lean 4.31 / Mathlib `v4.31.0-rc1`)
+# Extraction ledger (Lean 4.31 / Mathlib `v4.31.0`)
 
 This ledger records Mathlib upstream candidates discovered while modernizing `lean-yo`. The first upstream outputs are **lemmas and examples**, not the `yo` / `naturality!` tactics.
 
-Toolchain: `leanprover/lean4:v4.31.0-rc1` · Mathlib: `v4.31.0-rc1`
+Toolchain: `leanprover/lean4:v4.31.0` · Mathlib: `v4.31.0`
+
+**Upstream queue:** [docs/upstream/MATHLIB_NATURALITY_PR_QUEUE.md](upstream/MATHLIB_NATURALITY_PR_QUEUE.md) · **First PR draft:** [docs/upstream/MATHLIB_PR_DRAFT_nat_examples.md](upstream/MATHLIB_PR_DRAFT_nat_examples.md) · **Index:** [docs/upstream/README.md](upstream/README.md)
 
 ## Coverage index (required extraction categories)
 
@@ -47,12 +49,12 @@ Toolchain: `leanprover/lean4:v4.31.0-rc1` · Mathlib: `v4.31.0-rc1`
 | `yo` | bifunctor `F.map (f ≫ g) = F.map f ≫ F.map g` for `C ⥤ D ⥤ E` | `simp` | none | — | `Mathlib/CategoryTheory/Functor/Basic.lean` | low | documented |
 | `naturality!` | `(η.app X).app Z ≫ (G.map f).app Z = (F.map f).app Z ≫ (η.app Y).app Z` | `simp [NatTrans.naturality_app]` | bifunctor naturality `simp` bundle | naturality for components of bundled NTs | `Mathlib/CategoryTheory/Functor/Category.lean` | med | tactic + manual pass |
 | `yo` | `(F ⋙ yoneda).map (op f) = (yoneda.map (F.map f)).app (op Y)` | type-sensitive on 4.31 | Yoneda comp map lemma | example section in Yoneda docs | `Mathlib/CategoryTheory/Yoneda.lean` | med | research |
-| `naturality!` | `(η ◫ yoneda).app X = (yoneda ◫ η).app X` | unknown | interchange lemma | document whiskering vs `hcomp` with `yoneda` | `Mathlib/CategoryTheory/Yoneda.lean` | high | research |
+| `naturality!` | `(η ◫ yoneda).app X = (yoneda ◫ η).app X` | blocked (ill-typed) | interchange lemma | `yoneda` is a `Functor`, not `NatTrans`; use `η ◫ 𝟙 yoneda` / `𝟙 yoneda ◫ η` via `hcomp_id` / `id_hcomp` | `Mathlib/CategoryTheory/Yoneda.lean` | high | blocked — see queue row 24 |
 | (infra) | attribute `@[naturality]` registry | `registerLabelAttr` | none | — | repo-local | low | ported |
 | (infra) | whiskering API (`whiskerRight η H`, not `H ◫ η`) | `Whiskering.lean` | none | update downstream docs | `Mathlib/CategoryTheory/Whiskering.lean` | low | fixed in repo |
 | (infra) | `Functor.whiskerRight_app` / `Functor.whiskerLeft_app` simp names | present | none | — | `Mathlib/CategoryTheory/Whiskering.lean` | low | fixed in repo |
 
-## Build certification (2026-06-16)
+## Build certification (2026-06-17)
 
 | Command | Result |
 |---------|--------|
