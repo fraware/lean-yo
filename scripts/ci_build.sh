@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Single entry point for CI and local verification: sync deps, build library, examples, tests.
+# Requires LF line endings (see .gitattributes).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
