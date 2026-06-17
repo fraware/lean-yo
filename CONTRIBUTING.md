@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - **Lean and Lake** matching [`lean-toolchain`](lean-toolchain).
-- **Git**. On Windows, use an environment where `make` and a Unix shell work (for example Git Bash or WSL), or run the equivalent `lake` commands by hand.
+- **Git**. On Windows, use Git Bash, WSL, or PowerShell: `make test` runs `scripts/ci_build.ps1` when `OS=Windows_NT`, otherwise `scripts/ci_build.sh` (LF line endings; see `.gitattributes`).
 - **Python 3.12+** if you run the helper scripts under `scripts/`.
 
 ## Mathlib and Lean versions

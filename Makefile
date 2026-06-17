@@ -64,7 +64,11 @@ run: ## Run the library locally (build and test examples)
 
 test: ## Run all tests including validation
 	@echo "$(YELLOW)Running comprehensive test suite...$(NC)"
+ifeq ($(OS),Windows_NT)
+	@powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ci_build.ps1
+else
 	@bash scripts/ci_build.sh
+endif
 	@echo "$(YELLOW)Running benchmark executable (smoke)...$(NC)"
 	lake exe leanyo-benchmarks
 	@echo "$(YELLOW)Running production tests...$(NC)"
