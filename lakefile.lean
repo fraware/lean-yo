@@ -5,7 +5,7 @@ package «lean-yo» where
   -- Add package configuration options here
 
 require mathlib from git
-  "https://github.com/leanprover-community/mathlib4.git" @ "v4.31.0-rc1"
+  "https://github.com/leanprover-community/mathlib4.git" @ "v4.31.0"
 
 -- require proofwidgets from git
 --   "https://github.com/leanprover-community/ProofWidgets4.git" @ "v0.0.36"
