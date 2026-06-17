@@ -28,6 +28,15 @@ example {C D : Type} [Category C] [Category D] (F G : C ⥤ D) (η : F ⟶ G) {X
     η.app X ≫ G.map f = F.map f ≫ η.app Y := by
   rw [← NatTrans.naturality]
 
+example {C D E : Type} [Category C] [Category D] [Category E]
+    (F : C ⥤ D ⥤ E) {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z) :
+    F.map (f ≫ g) = F.map f ≫ F.map g := by
+  simp
+
+example {C D : Type} [Category C] [Category D] (F G : C ⥤ D) (η : F ⟶ G) (X : C) :
+    η.app X ≫ G.map (𝟙 X) = η.app X := by
+  rw [← NatTrans.naturality, Functor.map_id, Category.id_comp]
+
 example {C D : Type} [Category C] [Category D] (F G : C ⥤ D) (η : F ⟶ G) (X : C) :
     η.app X ≫ G.map (𝟙 X) = F.map (𝟙 X) ≫ η.app X := by
   rw [← NatTrans.naturality]
@@ -93,5 +102,9 @@ example {C : Type} [Category C] (X : C) :
 example {C D : Type} [Category C] [Category D] (F : C ⥤ D) (X : C) :
     (F ⋙ yoneda).obj X = yoneda.obj (F.obj X) := by
   rfl
+
+example {C D : Type} [Category C] [Category D] (F : C ⥤ D) {X Y : C} (f : X ⟶ Y) :
+    ((F ⋙ yoneda).map f).app (op (F.obj Y)) = (yoneda.map (F.map f)).app (op (F.obj Y)) := by
+  simp
 
 end LeanYo.Examples
