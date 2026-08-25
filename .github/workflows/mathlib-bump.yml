@@ -18,7 +18,8 @@ jobs:
 
       - name: Read Lean version
         id: lean
-        run: echo "version=$(cut -d: -f2 lean-toolchain)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "version=$(cut -d: -f2 lean-toolchain)" >> "$GITHUB_OUTPUT"
 
       - uses: leanprover/lean4-action@v2
         with:

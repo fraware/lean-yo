@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, "audit/**"]
   pull_request:
     branches: [main]
 
@@ -20,23 +20,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Read Lean version from lean-toolchain
-        id: lean
-        run: |
-          echo "version=$(cut -d: -f2 lean-toolchain)" >> "$GITHUB_OUTPUT"
-
       - name: Cache Lake build
         uses: actions/cache@v4
         with:
           path: .lake
           key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain', 'lakefile.lean') }}
-          restore-keys: |
-            lake-${{ runner.os }}-
 
-      - name: Setup Lean
-        uses: leanprover/lean4-action@v2
-        with:
-          lean-version: ${{ steps.lean.outputs.version }}
+      - name: Install Lean toolchain
+        run: |
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          "$HOME/.elan/bin/elan" install "$(cat lean-toolchain)"
+          "$HOME/.elan/bin/elan" default "$(cat lean-toolchain)"
 
       - name: Build library and tests
         run: bash scripts/ci_build.sh
@@ -63,7 +58,8 @@ jobs:
 
       - name: Read Lean version for image tags
         id: lv
-        run: echo "lean=$(cut -d: -f2 lean-toolchain)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "lean=$(cut -d: -f2 lean-toolchain)" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
