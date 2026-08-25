@@ -58,7 +58,8 @@ jobs:
 
       - name: Read Lean version for image tags
         id: lv
-        run: echo "lean=$(cut -d: -f2 lean-toolchain)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "lean=$(cut -d: -f2 lean-toolchain)" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
