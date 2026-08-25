@@ -25,8 +25,6 @@ jobs:
         with:
           path: .lake
           key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain', 'lakefile.lean') }}
-          restore-keys: |
-            lake-${{ runner.os }}-
 
       - name: Install Lean toolchain
         run: |
